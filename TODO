@@ -1,0 +1,17 @@
+1. Create LCD interface
+
+2. Create Matrix Button Interface
+  every button should return a std::pair<int, int>
+
+3. input on screen
+
+4. basic binary op
+4a map special chars out like sqrt
+
+5. figure out battery
+
+6 3d model and print calculator
+
+7 get rest of calc working
+
+8. maybe add vars
