@@ -26,5 +26,15 @@ class UnaryOperator : public Letter {
     MINUS,
     SQUARE_ROOT
   };
+
+ private:
+  UnaryOperationType op_;
+
+ public:
+  UnaryOperation(std::sting symbol, const UnaryOperationType op)
+      : Letter(symbol, Letter::Classification::UNARY), op_(op) {}
+
+  const UnaryOperationType& getOp() { return op_; }
+  void doAction(CalculatorState& stats) override;
 };
 }  // namespace calculator::math

@@ -19,7 +19,7 @@ namespace calculator::math {
 
 class Letter {
  public:
-  enum class Classification { LITERAL, BINARY, UNARY, BRACKET };
+  enum class Classification { LITERAL, BINARY, UNARY, BRACKET, FUNCTION };
 
  private:
   std::string value_;

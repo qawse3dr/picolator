@@ -15,12 +15,12 @@
 #include <string>
 #include <vector>
 
-#include "LCD1602.h"
 #include "bsp/board.h"
-#include "button.h"
-#include "button_matrix.h"
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"
+#include "larrys_pico/LCD1602.h"
+#include "larrys_pico/button.h"
+#include "larrys_pico/button_matrix.h"
 #include "pico/binary_info.h"
 #include "pico/bootrom.h"
 #include "pico/multicore.h"
@@ -54,11 +54,7 @@ int main() {
   lcd.clear();
   lcd.setCursor(0, 4);
   lcd.put(1);
-  lcd.put("Larry's");
-  lcd.put(1);
-  lcd.setCursor(1, 2);
-  lcd.put(1);
-  lcd.put("Calculator");
+  lcd.put("Picolator");
   lcd.put(1);
   lcd.update();
 

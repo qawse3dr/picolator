@@ -23,5 +23,4 @@ struct CalculatorState {
   // Holds all the equations in memory
   std::vector<std::vector<Letter>> equations;
   int equation_idx;
-
 };
