@@ -8,8 +8,9 @@
  *
  * @author: qawse3dr a.k.a Larry Milne
  */
-#include <stdio.h>
 
+#include <cmath>
+#include <limits>
 #include <map>
 #include <memory>
 #include <string>
@@ -24,6 +25,7 @@
 #include "pico/binary_info.h"
 #include "pico/bootrom.h"
 #include "pico/multicore.h"
+#include "pico/stdio.h"
 #include "pico/stdlib.h"
 
 #define MATRIX_ROW_SIZE 5
@@ -50,9 +52,10 @@ int main() {
   LCD1602 lcd;
 
   lcd.createChar(1, smile);
+  sleep_ms(5000);
 
   lcd.clear();
-  lcd.setCursor(0, 4);
+  lcd.setCursor(0, 0);
   lcd.put(1);
   lcd.put("Picolator");
   lcd.put(1);
@@ -61,7 +64,7 @@ int main() {
   sleep_ms(500);
 
   // add custom chars
-  lcd.clear();
+  // lcd.clear();
   lcd.update();
 
   int cursor = 0;

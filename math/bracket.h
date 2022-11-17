@@ -11,7 +11,7 @@
 #pragma once
 #include "letter.h"
 
-namespace calculator::math {
+namespace picolator::math {
 class Bracket : public Letter {
  public:
   enum class BracketType {
@@ -30,4 +30,4 @@ class Bracket : public Letter {
 
   const BracketType& getType() { return type_; };
 };
-}  // namespace calculator::math
+}  // namespace picolator::math

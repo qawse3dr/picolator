@@ -11,7 +11,7 @@
 #pragma once
 #include "letter.h"
 
-namespace calculator::math {
+namespace picolator::math {
 class BinaryOperator : public Letter {
  public:
   enum class BinaryOperatorType {
@@ -28,4 +28,4 @@ class BinaryOperator : public Letter {
   // The priority of operation
   int priority;
 };
-}  // namespace calculator::math
+}  // namespace picolator::math

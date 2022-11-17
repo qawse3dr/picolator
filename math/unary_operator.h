@@ -11,7 +11,7 @@
 #pragma once
 #include "letter.h"
 
-namespace calculator::math {
+namespace picolator::math {
 class UnaryOperator : public Letter {
  public:
   enum class UnaryOperatorType {
@@ -28,13 +28,13 @@ class UnaryOperator : public Letter {
   };
 
  private:
-  UnaryOperationType op_;
+  UnaryOperatorType op_;
 
  public:
-  UnaryOperation(std::sting symbol, const UnaryOperationType op)
+  UnaryOperator(std::string symbol, const UnaryOperatorType op)
       : Letter(symbol, Letter::Classification::UNARY), op_(op) {}
 
-  const UnaryOperationType& getOp() { return op_; }
-  void doAction(CalculatorState& stats) override;
+  const UnaryOperatorType& getOp() { return op_; }
+  double solve(double input);
 };
-}  // namespace calculator::math
+}  // namespace picolator::math

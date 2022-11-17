@@ -13,7 +13,7 @@
 
 #include "letter.h"
 
-namespace calculator::math {
+namespace picolator::math {
 
 class ExprTree {
  private:
@@ -40,4 +40,4 @@ class ExprTree {
   // prints a pretty version of the tree
   void print();
 };
-}  // namespace calculator::math
+}  // namespace picolator::math

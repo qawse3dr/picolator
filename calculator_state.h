@@ -12,15 +12,18 @@
 
 #include <vector>
 
+namespace picolator::math {
 class Letter;
+}
+
 struct CalculatorState {
   // Holds a pointer to the current equation (should be index 0)
   // might be able to remove
-  std::vector<Letter> cur_equation;
+  std::vector<picolator::math::Letter> cur_equation;
   int cursor;
   float ans;
 
   // Holds all the equations in memory
-  std::vector<std::vector<Letter>> equations;
+  std::vector<std::vector<picolator::math::Letter>> equations;
   int equation_idx;
 };

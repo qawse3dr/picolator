@@ -15,7 +15,7 @@
 
 #include "calculator_state.h"
 
-namespace calculator::math {
+namespace picolator::math {
 
 class Letter {
  public:
@@ -29,11 +29,9 @@ class Letter {
   Letter(std::string value, Classification c)
       : value_(value), classification_(c){};
 
-  const Classification& getClassification() { return classification_; }
+  const Classification& getClassification() const { return classification_; }
 
-  std::string getValue() { return value_; }
-
-  virtual void doAction(CalculatorState& stats) = 0;
+  std::string getValue() const { return value_; }
 };
 
-}  // namespace calculator::math
+}  // namespace picolator::math

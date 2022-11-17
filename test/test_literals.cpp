@@ -8,8 +8,14 @@
  *
  * @author: qawse3dr a.k.a Larry Milne
  */
+
 #include <gtest/gtest.h>
 
-#include "math/expr_tree.h"
+#include "math/literals.h"
 
-TEST(ExprTree, Constructor) { ASSERT_TRUE(true); }
+using picolator::math::Literals;
+
+TEST(LiteralsTest, Addition) {
+  ASSERT_EQ((Literals(10) + Literals(5)).getLong(), 15);
+  ASSERT_EQ((Literals(2, 5) + Literals(3, 5)).getDouble(), 1);
+}

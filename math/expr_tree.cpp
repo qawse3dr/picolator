@@ -9,11 +9,11 @@
  * @author: qawse3dr a.k.a Larry Milne
  */
 
-#include <stack>
-
 #include "expr_tree.h"
 
-using calculator::math::ExprTree;
+#include <stack>
+
+using picolator::math::ExprTree;
 
 ExprTree::ExprTree(const std::vector<Letter>& expr) { createTree(expr, root_); }
 
