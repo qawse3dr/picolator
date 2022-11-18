@@ -22,14 +22,32 @@
 
 namespace picolator::math {
 
-class PI {
+// forward declaration for Consts
+class Literals;
+
+class Constant {
  public:
-  static constexpr double value = 3.141592653589793;
+  // Represents an x(pi) ie 2(pi) or (3pi)
+  std::unique_ptr<Literals> x_;
+  // Represents an pi^pow_ ie pi^2 or pi^3
+  std::unique_ptr<Literals> pow_;
+
+  Constant(std::unique_ptr<Literals>&& x, std::unique_ptr<Literals>&& pow)
+      : x_(std::move(x)), pow_(std::move(pow)) {}
 };
 
-class E {
+class PI : public Constant {
+ public:
+  static constexpr double value = 3.141592653589793;
+  PI(std::unique_ptr<Literals>&& x, std::unique_ptr<Literals>&& pow)
+      : Constant(std::move(x), std::move(pow)) {}
+};
+
+class E : public Constant {
  public:
   static constexpr double value = 2.718281828459045;
+  E(std::unique_ptr<Literals>&& x, std::unique_ptr<Literals>&& pow)
+      : Constant(std::move(x), std::move(pow)) {}
 };
 
 class Literals : public Letter {
@@ -65,6 +83,7 @@ class Literals : public Letter {
   LiteralsType type_;
   std::variant<Fraction, double, long> num_ = 0L;
   char variable_ = ' ';
+  std::unique_ptr<Constant> constant_ = {};
 
  public:
   Literals(double d);
@@ -73,49 +92,13 @@ class Literals : public Letter {
   Literals(char c);
   Literals(const Literals& numerator, const Literals& denominator);
   Literals(LiteralsType type);
+  Literals(LiteralsType type, const Literals& x, const Literals& pow);
+
   Literals(const Literals&);
 
-  double getDouble() const {
-    switch (type_) {
-      case LiteralsType::VARIABLE:
-        return 0;  // TODO IMPL
-      case LiteralsType::DOUBLE:
-        return std::get<double>(num_);
-      case LiteralsType::LONG:
-        return std::get<long>(num_);
-      case LiteralsType::FRACTION:
-        return std::get<Fraction>(num_).numerator->getDouble() /
-               std::get<Fraction>(num_).denominator->getDouble();
-      case LiteralsType::PI:
-        return PI::value;
-      case LiteralsType::E:
-        return E::value;
-      case LiteralsType::ANS:
-        return ans_;
-      default:
-        // TODO throw err
-        return 0;
-    }
-  }
-
-  long getLong() const {
-    switch (type_) {
-      case LiteralsType::LONG:
-        return std::get<long>(num_);
-      default:
-        // TODO throw error
-        return 0;
-    }
-  }
-
-  const Fraction& getFraction() {
-    if (type_ == LiteralsType::FRACTION) {
-      return std::get<Fraction>(num_);
-    } else {
-      // TODO throw error
-    }
-  }
-
+  double getDouble() const;
+  long getLong() const;
+  const Fraction& getFraction();
   const LiteralsType& getType() const { return type_; }
 
   // I need this because I am crazy
@@ -123,5 +106,6 @@ class Literals : public Letter {
   Literals operator*(const Literals& rhs) const;
   Literals operator/(const Literals& rhs) const;
   bool operator==(const Literals& rhs) const;
+  Literals operator-() const;
 };
 }  // namespace picolator::math

@@ -15,6 +15,8 @@
 #include "math/unary_operator.h"
 
 using picolator::math::Letter;
+using picolator::math::Literals;
+
 using picolator::math::UnaryOperator;
 
 TEST(UnaryOperatorTest, Constructor) {
@@ -28,22 +30,22 @@ TEST(UnaryOperatorTest, Constructor) {
 TEST(UnaryOperatorTest, MINUS) {
   UnaryOperator op("-", UnaryOperator::UnaryOperatorType::MINUS);
 
-  ASSERT_EQ(-10, op.solve(10));
-  ASSERT_EQ(10, op.solve(-10));
+  ASSERT_EQ(Literals(-10), op.solve(10));
+  ASSERT_EQ(Literals(10), op.solve(-10));
 }
 
 TEST(UnaryOperatorTest, SIN) {
   UnaryOperator op("sin", UnaryOperator::UnaryOperatorType::SIN);
 
-  EXPECT_EQ(0, op.solve(0));
-  EXPECT_EQ(0, op.solve(2.0 * M_PI));
-  EXPECT_EQ(1, op.solve(M_PI / 2.0));
+  EXPECT_EQ(Literals(0), op.solve(0));
+  EXPECT_EQ(Literals(0), op.solve(2.0 * M_PI));
+  EXPECT_EQ(Literals(1), op.solve(M_PI / 2.0));
 }
 
 TEST(UnaryOperatorTest, COS) {
   UnaryOperator op("cos", UnaryOperator::UnaryOperatorType::COS);
 
-  EXPECT_EQ(1, op.solve(0));
-  EXPECT_EQ(1, op.solve(2 * M_PI));
-  EXPECT_EQ(0, op.solve(M_PI / 2.0));
+  EXPECT_EQ(Literals(1), op.solve(0));
+  EXPECT_EQ(Literals(1), op.solve(2 * M_PI));
+  EXPECT_EQ(Literals(0), op.solve(M_PI / 2.0));
 }

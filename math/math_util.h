@@ -11,6 +11,8 @@
 #pragma once
 #include <exception>
 
+#include "literals.h"
+
 namespace picolator::math {
 
 // NOT will throw Exceptions
@@ -20,13 +22,11 @@ class DomainError : public std::exception {
   const char* what() const throw() { return "Domain error"; }
 };
 
-const int TAYLOR_ITERATIONS = 20;
+Literals pcos(const Literals& radian);
+Literals psin(const Literals& radian);
+Literals ptan(const Literals& radian);
 
-double pcos(double radian);
-double psin(double radian);
-double ptan(double radian);
-
-double parcsin(double radian);
-double parccos(double radian);
-double parctan(double radian);
+Literals parcsin(const Literals& radian);
+Literals parccos(const Literals& radian);
+Literals parctan(const Literals& radian);
 }  // namespace picolator::math

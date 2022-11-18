@@ -10,18 +10,18 @@
  */
 #include <cmath>
 
+#include "literals.h"
 #include "math_util.h"
 #include "unary_operator.h"
 
+using picolator::math::Literals;
 using picolator::math::UnaryOperator;
 
-double UnaryOperator::solve(double input) {
+Literals UnaryOperator::solve(const Literals& input) {
   switch (op_) {
     case UnaryOperatorType::MINUS:
       return -input;
     case UnaryOperatorType::SIN:
-      // todo return special angles, and rad verses degree
-      // rough rounding todo fix this
       return picolator::math::psin(input);
     case UnaryOperatorType::COS:
       return picolator::math::pcos(input);

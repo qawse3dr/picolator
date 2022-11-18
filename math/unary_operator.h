@@ -10,6 +10,7 @@
  */
 #pragma once
 #include "letter.h"
+#include "literals.h"
 
 namespace picolator::math {
 class UnaryOperator : public Letter {
@@ -35,6 +36,6 @@ class UnaryOperator : public Letter {
       : Letter(symbol, Letter::Classification::UNARY), op_(op) {}
 
   const UnaryOperatorType& getOp() { return op_; }
-  double solve(double input);
+  Literals solve(const Literals& input);
 };
 }  // namespace picolator::math

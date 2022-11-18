@@ -34,19 +34,22 @@ target_include_directories(picolator_objlib PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Check if we are running tests
 if(NOT DEFINED PICOLATOR_TEST)
-  # Define anything that requires pico sdk here
-  add_executable(picolator
-    larrys_calculator.cpp
-    larrys_pico/LCD1602.cpp
-    larrys_pico/button.cpp
-  )
 
   # Initialize the SDK
   pico_sdk_init()
 
+  # Define anything that requires pico sdk here
+  add_subdirectory(larrys_pico)
+
+  add_executable(picolator
+  larrys_calculator.cpp
+  )
   # pull in common dependencies
- target_link_libraries(picolator PRIVATE picolator_objlib pico_stdlib pico_multicore hardware_i2c )
- target_include_directories(picolator PUBLIC  ${CMAKE_CURRENT_LIST_DIR})
+  target_link_libraries(picolator PRIVATE larryspico picolator_objlib pico_stdlib pico_multicore hardware_i2c)
+ target_include_directories(picolator PUBLIC  ${CMAKE_CURRENT_LIST_DIR} )
+
+
+
 
 
   # create map/bin/hex/uf2 file etc.

@@ -9,8 +9,8 @@
  * @author: qawse3dr a.k.a Larry Milne
  */
 
-#include "button.h"
 #include "hardware/gpio.h"
+#include "larrys_pico/button.h"
 
 Gpio::Gpio(int gpio_pin) : gpio_pin_(gpio_pin) {
   if (gpio_pin != -1) gpio_init(gpio_pin_);

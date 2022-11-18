@@ -9,6 +9,8 @@
  * @author: qawse3dr a.k.a Larry Milne
  */
 
+#include <larrys_pico/LCD1602.h>
+
 #include <cmath>
 #include <limits>
 #include <map>
@@ -19,7 +21,6 @@
 #include "bsp/board.h"
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"
-#include "larrys_pico/LCD1602.h"
 #include "larrys_pico/button.h"
 #include "larrys_pico/button_matrix.h"
 #include "pico/binary_info.h"

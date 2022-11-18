@@ -38,8 +38,8 @@ double specialSineValues(double res) {
   return res;
 }
 
-double pcos(double radian) {
-  return specialSineValues(cos(radian));
+Literals pcos(const Literals& radian) {
+  return specialSineValues(cos(radian.getDouble()));
   // double result = 1;
 
   // // Keeps track of the negative in the taylor poylinomial
@@ -60,8 +60,8 @@ double pcos(double radian) {
   // return result;
 }
 
-double psin(double radian) {
-  return specialSineValues(sin(radian));
+Literals psin(const Literals& radian) {
+  return specialSineValues(sin(radian.getDouble()));
   // double result = 0;
 
   // // Keeps track of the negative in the taylor poylinomial
@@ -82,10 +82,10 @@ double psin(double radian) {
   // return result;
 }
 
-double ptan(double radian) {
+Literals ptan(const Literals& radian) {
   // Check if its
   // pi/2
-  return specialSineValues(tan(radian));
+  return specialSineValues(tan(radian.getDouble()));
 }
 
 }  // namespace picolator::math
