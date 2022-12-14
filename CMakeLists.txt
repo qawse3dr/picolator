@@ -2,7 +2,7 @@
 # (C) Copyright 2022 Larry Milne (https://www.larrycloud.ca)
 #
 # This code is distributed on "AS IS" BASIS,
-# WITHOUT WARRANTINES OR CONDITIONS OF ANY KIND.
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
@@ -31,7 +31,7 @@ add_library(picolator_objlib
 )
 target_link_libraries(picolator_objlib PUBLIC m)
 target_include_directories(picolator_objlib PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR})
-
+set(CMAKE_CXX_FLAGS  "-g")
 # Check if we are running tests
 if(NOT DEFINED PICOLATOR_TEST)
 
@@ -46,11 +46,7 @@ if(NOT DEFINED PICOLATOR_TEST)
   )
   # pull in common dependencies
   target_link_libraries(picolator PRIVATE larryspico picolator_objlib pico_stdlib pico_multicore hardware_i2c)
- target_include_directories(picolator PUBLIC  ${CMAKE_CURRENT_LIST_DIR} )
-
-
-
-
+  target_include_directories(picolator PUBLIC  ${CMAKE_CURRENT_LIST_DIR} )
 
   # create map/bin/hex/uf2 file etc.
   pico_add_extra_outputs(picolator)

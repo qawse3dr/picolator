@@ -25,9 +25,7 @@ add_executable(
   test_expr_tree.cpp
   test_unary_operator.cpp
   test_literals.cpp
-  )
-
-
+)
 
 target_link_libraries(
   picolator_test

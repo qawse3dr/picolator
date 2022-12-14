@@ -22,6 +22,10 @@ class DomainError : public std::exception {
   const char* what() const throw() { return "Domain error"; }
 };
 
+class SyntaxError : public std::exception {
+  const char* what() const throw() { return "Domain error"; }
+};
+
 Literals pcos(const Literals& radian);
 Literals psin(const Literals& radian);
 Literals ptan(const Literals& radian);

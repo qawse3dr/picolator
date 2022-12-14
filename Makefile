@@ -27,3 +27,6 @@ build_test:
 
 run_test: build_test
 	./build_test/test/picolator_test
+
+mem_test: build_test
+	valgrind ./build_test/test/picolator_test

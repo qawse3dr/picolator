@@ -40,46 +40,10 @@ double specialSineValues(double res) {
 
 Literals pcos(const Literals& radian) {
   return specialSineValues(cos(radian.getDouble()));
-  // double result = 1;
-
-  // // Keeps track of the negative in the taylor poylinomial
-  // int negate = -1;
-
-  // // keeps track of the current raidan power in taylor
-  // double radiansPower = radian * radian;
-
-  // int64_t fact = 2;
-  // for (int i = 2; i < TAYLOR_ITERATIONS; i += 2) {
-  //   result += (negate * radiansPower / fact);
-
-  //   // update taylor info
-  //   fact *= (i + 1) * (i + 2);
-  //   negate *= -1;
-  //   radiansPower *= (radian * radian);
-  // }
-  // return result;
 }
 
 Literals psin(const Literals& radian) {
   return specialSineValues(sin(radian.getDouble()));
-  // double result = 0;
-
-  // // Keeps track of the negative in the taylor poylinomial
-  // int negate = 1;
-
-  // // keeps track of the current raidan power in taylor
-  // double radiansPower = radian;
-
-  // int64_t fact = 1;
-  // for (int i = 1; i < TAYLOR_ITERATIONS; i += 2) {
-  //   result += (negate * radiansPower / fact);
-
-  //   // update taylor info
-  //   fact *= (i + 1) * (i + 2);
-  //   negate *= -1;
-  //   radiansPower *= (radian * radian);
-  // }
-  // return result;
 }
 
 Literals ptan(const Literals& radian) {

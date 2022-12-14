@@ -15,7 +15,7 @@
 namespace picolator::math {
 class UnaryOperator : public Letter {
  public:
-  enum class UnaryOperatorType {
+  enum class Type {
     SIN,
     COS,
     TAN,
@@ -29,13 +29,13 @@ class UnaryOperator : public Letter {
   };
 
  private:
-  UnaryOperatorType op_;
+  Type op_;
 
  public:
-  UnaryOperator(std::string symbol, const UnaryOperatorType op)
-      : Letter(symbol, Letter::Classification::UNARY), op_(op) {}
+  UnaryOperator(std::string symbol, const Type op)
+      : Letter(symbol, Letter::Classification::UNARY, 2), op_(op) {}
 
-  const UnaryOperatorType& getOp() { return op_; }
+  const Type& getOp() { return op_; }
   Literals solve(const Literals& input);
 };
 }  // namespace picolator::math

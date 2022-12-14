@@ -52,7 +52,7 @@ class E : public Constant {
 
 class Literals : public Letter {
  public:
-  enum class LiteralsType {
+  enum class Type {
     DOUBLE,
     LONG,
     FRACTION,
@@ -80,26 +80,59 @@ class Literals : public Letter {
   static double ans_;
 
  private:
-  LiteralsType type_;
+  Type type_;
   std::variant<Fraction, double, long> num_ = 0L;
   char variable_ = ' ';
   std::unique_ptr<Constant> constant_ = {};
 
  public:
+  /**
+   * @brief Creates double Literal
+   *
+   * @param d double
+   */
   Literals(double d);
-  Literals(long d);
-  Literals(int d);
-  Literals(char c);
-  Literals(const Literals& numerator, const Literals& denominator);
-  Literals(LiteralsType type);
-  Literals(LiteralsType type, const Literals& x, const Literals& pow);
 
+  /**
+   * @brief Creates Long Literal
+   *
+   * @param d long
+   */
+  Literals(long d);
+
+  /**
+   * @brief Creates Long Literal
+   *
+   * @param d long
+   */
+  Literals(int d);
+
+  /**
+   * @brief Creates a variable literal
+   * Its value will be grabbed when used from a global static table
+   *
+   * @param c Variable name
+   */
+  Literals(char c);
+
+  /**
+   * @brief Creates a fraction Literal
+   *
+   * @param numerator
+   * @param denominator
+   */
+  Literals(const Literals& numerator, const Literals& denominator);
+
+  // Const Constructors
+  Literals(Type type);
+  Literals(std::string&& val);  // Used for EXPANDED form
+  Literals(Type type, const Literals& x, const Literals& pow);
   Literals(const Literals&);
 
   double getDouble() const;
   long getLong() const;
   const Fraction& getFraction();
-  const LiteralsType& getType() const { return type_; }
+  const Type& getType() const { return type_; }
 
   // I need this because I am crazy
   Literals operator+(const Literals& rhs) const;

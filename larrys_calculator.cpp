@@ -48,15 +48,14 @@ uint8_t smile[] = {0x00, 0x00, 0x0A, 0x00, 0x11, 0x0E, 0x00, 0x00};
 int main() {
   stdio_init_all();
   ButtonMatrix<MATRIX_ROW_SIZE, MATRIX_COL_SIZE> buttons = {
-      {16, 20, 21, 18, 19}, {0, 1, 2, 3, 8, 6, 7, 9, 11}};
+      {15, 11, 14, 13, 12}, {27, 26, 22, 21, 20, 19, 18, 17, 16}};
 
   LCD1602 lcd;
 
   lcd.createChar(1, smile);
-  sleep_ms(5000);
 
   lcd.clear();
-  lcd.setCursor(0, 0);
+  lcd.setCursor(0, 3);
   lcd.put(1);
   lcd.put("Picolator");
   lcd.put(1);
@@ -65,7 +64,7 @@ int main() {
   sleep_ms(500);
 
   // add custom chars
-  // lcd.clear();
+  lcd.clear();
   lcd.update();
 
   int cursor = 0;
@@ -85,6 +84,8 @@ int main() {
         lcd.clear();
         lcd.setCursor(0, 0);
         lcd.put("re-flash mode");
+        lcd.setCursor(1, 0);
+        lcd.put("unplug battery!");
         lcd.update();
 
         reset_usb_boot(0, 0);
@@ -132,7 +133,7 @@ int main() {
             lcd.setCursor(0, --cursor);
             lcd.put(' ');
             lcd.setCursor(0, cursor);
-            equation.erase(equation.begin() + cursor + 1);
+            equation.erase(equation.begin() + cursor);
             lcd.update();
           }
           break;

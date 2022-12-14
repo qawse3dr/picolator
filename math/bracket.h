@@ -14,20 +14,24 @@
 namespace picolator::math {
 class Bracket : public Letter {
  public:
-  enum class BracketType {
-    OPEN,
-    CLOSED,
-  };
-
+  enum class Type { OPEN, CLOSED, EQUATION };
+  using LetterVec = std::vector<std::shared_ptr<Letter>>;
  private:
-  BracketType type_;
+  Type type_;
 
  public:
-  Bracket(const BracketType& type)
-      : Letter((type == BracketType::OPEN) ? "(" : ")",
-               Letter::Classification::BRACKET),
+  
+  LetterVec letters_;
+  Bracket(const Type& type)
+      : Letter((type == Type::OPEN) ? "(" : ")",
+               Letter::Classification::BRACKET, 1),
         type_(type) {}
 
-  const BracketType& getType() { return type_; };
+  Bracket(LetterVec&& letters)
+      : Letter("Todo Impl", Letter::Classification::BRACKET, 1),
+        type_(Type::EQUATION),
+        letters_(std::move(letters)) {}
+
+  const Type& getType() const { return type_; };
 };
 }  // namespace picolator::math

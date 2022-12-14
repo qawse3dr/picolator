@@ -8,25 +8,28 @@
  *
  * @author: qawse3dr a.k.a Larry Milne
  */
+#include "unary_operator.h"
+
 #include <cmath>
 
 #include "literals.h"
 #include "math_util.h"
-#include "unary_operator.h"
 
 using picolator::math::Literals;
 using picolator::math::UnaryOperator;
 
 Literals UnaryOperator::solve(const Literals& input) {
   switch (op_) {
-    case UnaryOperatorType::MINUS:
+    case Type::MINUS:
       return -input;
-    case UnaryOperatorType::SIN:
+    case Type::SIN:
       return picolator::math::psin(input);
-    case UnaryOperatorType::COS:
+    case Type::COS:
       return picolator::math::pcos(input);
-    case UnaryOperatorType::TAN:
+    case Type::TAN:
       return picolator::math::ptan(input);
+    case Type::SQUARE_ROOT:
+      return sqrt(input.getDouble());
     default:
       return 0;
       break;

@@ -9,23 +9,29 @@
  * @author: qawse3dr a.k.a Larry Milne
  */
 #pragma once
+
+#include <math.h>
+
+#include <iostream>
+#include <limits>
+#include <memory>
+#include <string>
+#include <variant>
+
 #include "letter.h"
 
 namespace picolator::math {
-class BinaryOperator : public Letter {
- public:
-  enum class BinaryOperatorType {
-    ADDITION,
-    SUBTRACTION,
-    MULTIPLICATION,
-    DIVISION,
-    EXPONENT,
-    N_TH_ROOT,
-    MODULUS
-  };
 
- private:
-  // The priority of operation
-  int priority;
+class LiteralsPiece : public Letter {
+ public:
+  enum class LiteralsPieceType { NUM };
+
+  const char value_ = ' ';
+
+ public:
+  LiteralsPiece(uint8_t value)
+      : Letter(std::string(1, static_cast<char>(value)),
+               Letter::Classification::LITERAL_PIECE, -1),
+        value_(value) {}
 };
 }  // namespace picolator::math

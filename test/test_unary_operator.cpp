@@ -20,22 +20,22 @@ using picolator::math::Literals;
 using picolator::math::UnaryOperator;
 
 TEST(UnaryOperatorTest, Constructor) {
-  UnaryOperator op("sin", UnaryOperator::UnaryOperatorType::SIN);
+  UnaryOperator op("sin", UnaryOperator::Type::SIN);
 
   ASSERT_EQ("sin", op.getValue());
   ASSERT_EQ(Letter::Classification::UNARY, op.getClassification());
-  ASSERT_EQ(UnaryOperator::UnaryOperatorType::SIN, op.getOp());
+  ASSERT_EQ(UnaryOperator::Type::SIN, op.getOp());
 }
 
 TEST(UnaryOperatorTest, MINUS) {
-  UnaryOperator op("-", UnaryOperator::UnaryOperatorType::MINUS);
+  UnaryOperator op("-", UnaryOperator::Type::MINUS);
 
   ASSERT_EQ(Literals(-10), op.solve(10));
   ASSERT_EQ(Literals(10), op.solve(-10));
 }
 
 TEST(UnaryOperatorTest, SIN) {
-  UnaryOperator op("sin", UnaryOperator::UnaryOperatorType::SIN);
+  UnaryOperator op("sin", UnaryOperator::Type::SIN);
 
   EXPECT_EQ(Literals(0), op.solve(0));
   EXPECT_EQ(Literals(0), op.solve(2.0 * M_PI));
@@ -43,7 +43,7 @@ TEST(UnaryOperatorTest, SIN) {
 }
 
 TEST(UnaryOperatorTest, COS) {
-  UnaryOperator op("cos", UnaryOperator::UnaryOperatorType::COS);
+  UnaryOperator op("cos", UnaryOperator::Type::COS);
 
   EXPECT_EQ(Literals(1), op.solve(0));
   EXPECT_EQ(Literals(1), op.solve(2 * M_PI));

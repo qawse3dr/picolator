@@ -10,34 +10,52 @@
  */
 #pragma once
 #include <memory>
+#include <vector>
 
 #include "letter.h"
+#include "literals.h"
 
 namespace picolator::math {
 
 class ExprTree {
+ public:
+  using LetterPtr = std::shared_ptr<Letter>;
+  using LiteralPtr = std::shared_ptr<Literals>;
+
+  using ExprVec = std::vector<LetterPtr>;
+
  private:
   struct ExprTreeNode {
     std::vector<std::unique_ptr<ExprTreeNode>> children;
-    std::shared_ptr<Letter> value;
+    LetterPtr value;
+    LiteralPtr current_value = nullptr;
   };
+  using ExprTreeNodePtr = std::unique_ptr<ExprTreeNode>;
 
-  std::unique_ptr<ExprTreeNode> root_ = {};
+  ExprTreeNodePtr root_ = {};
 
   // Helper for print function simply counts how many leaf nodes
   // there are so printing can be done easier
-  int countLeafs(const std::unique_ptr<ExprTreeNode>& start_node);
+  int countLeafs(const std::unique_ptr<ExprTreeNode>& start_node) const;
 
-  void createTree(const std::vector<Letter>& expr,
-                  const std::unique_ptr<ExprTreeNode>& node);
+  // takes in a current expanded tree input and minimize it's literals and
+  // brackets to make solving easier
+  ExprVec minimizeTreeInput(const ExprVec& expr);
+  ExprTreeNodePtr createTree(const ExprVec& expr);
 
  public:
-  ExprTree(const std::vector<Letter>& expr);
+  ExprTree(const ExprVec& expr);
 
-  // Gets the value of the tree
+  /**
+   * @brief Get the float value of the tree
+   *
+   * @return float
+   */
   float getValue();
 
   // prints a pretty version of the tree
   void print();
+
+  friend class ExprTreeTester;
 };
 }  // namespace picolator::math
