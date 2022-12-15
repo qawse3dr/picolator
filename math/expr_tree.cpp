@@ -40,9 +40,9 @@ ExprTree::ExprTree(const ExprTree::ExprVec& expr) {
    l->current_value != nullptr)
 
 #define LETTER_PTR_GET_VALUE(l)        \
-  ((l->current_value)                  \
+  ((l->current_value != nullptr)       \
        ? l->current_value->getDouble() \
-       : reinterpret_cast<Literals*>(l->value.get())->getDouble())
+       : reinterpret_cast<const Literals&>(*l->value).getDouble())
 
 float ExprTree::getValue() {
   std::stack<ExprTreeNode*> node_stack;

@@ -69,6 +69,7 @@ class LCD1602 {
 
   // Clears everything on the screen
   void clear();
+  void clear(int y);
 
   /* updates the screen_ and displays changes to the lcd module*/
   void update();

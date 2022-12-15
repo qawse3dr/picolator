@@ -229,11 +229,33 @@ TEST(ExprTree, Bracket_MULT) {
   ASSERT_EQ(tree.isi.getValue(), 22.0f);
 }
 
-// Sin pi
 TEST(ExprTree, sin_pi) {
   ExprTree::ExprVec letters;
   letters.emplace_back(
       ExprTree::LetterPtr(new UnaryOperator("sin", UnaryOperator::Type::SIN)));
+  letters.emplace_back(ExprTree::LetterPtr(new Bracket(Bracket::Type::OPEN)));
+  letters.emplace_back(ExprTree::LetterPtr(new Literals(Literals::Type::PI)));
+
+  letters.emplace_back(ExprTree::LetterPtr(new Bracket(Bracket::Type::CLOSED)));
+  picolator::math::ExprTreeTester tree(letters);
+
+  ASSERT_EQ(tree.isi.getValue(), 0);
+}
+
+TEST(ExprTree, pi) {
+  ExprTree::ExprVec letters;
+  letters.emplace_back(ExprTree::LetterPtr(new Literals(Literals::Type::PI)));
+  picolator::math::ExprTreeTester tree(letters);
+
+  // should be < e but I am lazy
+  ASSERT_TRUE(std::abs(tree.isi.getValue() - picolator::math::PI::value) <
+              0.001);
+}
+
+TEST(ExprTree, cos_pi) {
+  ExprTree::ExprVec letters;
+  letters.emplace_back(
+      ExprTree::LetterPtr(new UnaryOperator("cos", UnaryOperator::Type::COS)));
   letters.emplace_back(ExprTree::LetterPtr(new Bracket(Bracket::Type::OPEN)));
   letters.emplace_back(
       ExprTree::LetterPtr(new Literals(Literals::Type::PI, 1L, 1L)));
@@ -241,5 +263,5 @@ TEST(ExprTree, sin_pi) {
   letters.emplace_back(ExprTree::LetterPtr(new Bracket(Bracket::Type::CLOSED)));
   picolator::math::ExprTreeTester tree(letters);
 
-  // ASSERT_EQ(tree.isi.getValue(), 0);
+  ASSERT_EQ(tree.isi.getValue(), -1);
 }

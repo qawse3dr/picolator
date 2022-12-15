@@ -21,33 +21,8 @@
 
 namespace picolator::math {
 
-// forward declaration for Consts
-class Literals;
-
-class Constant {
- public:
-  // Represents an x(pi) ie 2(pi) or (3pi)
-  std::unique_ptr<Literals> x_;
-  // Represents an pi^pow_ ie pi^2 or pi^3
-  std::unique_ptr<Literals> pow_;
-
-  Constant(std::unique_ptr<Literals>&& x, std::unique_ptr<Literals>&& pow)
-      : x_(std::move(x)), pow_(std::move(pow)) {}
-};
-
-class PI : public Constant {
- public:
-  static constexpr double value = 3.141592653589793;
-  PI(std::unique_ptr<Literals>&& x, std::unique_ptr<Literals>&& pow)
-      : Constant(std::move(x), std::move(pow)) {}
-};
-
-class E : public Constant {
- public:
-  static constexpr double value = 2.718281828459045;
-  E(std::unique_ptr<Literals>&& x, std::unique_ptr<Literals>&& pow)
-      : Constant(std::move(x), std::move(pow)) {}
-};
+// Forward declaration for Literals
+class Constant;
 
 class Literals : public Letter {
  public:
@@ -139,5 +114,27 @@ class Literals : public Letter {
   Literals operator%(const Literals& rhs) const;
   bool operator==(const Literals& rhs) const;
   Literals operator-() const;
+};
+
+class Constant {
+ public:
+  // Represents an x(pi) ie 2(pi) or (3pi)
+  Literals x_;
+  // Represents an pi^pow_ ie pi^2 or pi^3
+  Literals pow_;
+
+  Constant(const Literals& x, const Literals& pow) : x_(x), pow_(pow) {}
+};
+
+class PI : public Constant {
+ public:
+  static constexpr double value = 3.141592653589793;
+  PI(const Literals& x, const Literals& pow) : Constant(x, pow) {}
+};
+
+class E : public Constant {
+ public:
+  static constexpr double value = 2.718281828459045;
+  E(const Literals& x, const Literals& pow) : Constant(x, pow) {}
 };
 }  // namespace picolator::math

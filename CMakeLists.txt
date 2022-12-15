@@ -20,7 +20,8 @@ endif()
 
 project(Picolator C CXX ASM)
 
-set(CMAKE_CXX_FLAGS '-g')
+# Do not set this when building for pico or else it won't load
+# set(CMAKE_CXX_FLAGS '-g')
 
 
 # any platform independant code

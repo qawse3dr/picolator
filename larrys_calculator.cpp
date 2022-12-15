@@ -49,6 +49,7 @@ using picolator::math::Letter;
 using picolator::math::Literals;
 using picolator::math::LiteralsPiece;
 using picolator::math::SyntaxError;
+using picolator::math::TypeError;
 using picolator::math::UnaryOperator;
 using LP = ExprTree::LetterPtr;
 
@@ -107,8 +108,23 @@ void calculate_cb(CalculatorState& state) {
 
     state.lcd.update();
     return;
+  } catch (const TypeError& e) {
+    state.lcd.setCursor(1, 0);
+    state.lcd.put(e.what());
+    state.lcd.setView(0, 0);
+    state.lcd.setCursor(0, 0);
+    state.lcd.update();
+    return;
+  } catch (...) {
+    state.lcd.setCursor(1, 0);
+    state.lcd.put("caught error");
+    state.lcd.setView(0, 0);
+    state.lcd.setCursor(0, 0);
+    state.lcd.update();
+    return;
   }
-  // state.lcd_clear();
+
+  state.clear = true;
   state.lcd.setCursor(1, 0);
   state.lcd.put("ans " + std::to_string(value));
   state.lcd.setCursor(0, 0);
@@ -154,8 +170,8 @@ LP op_div(new BinaryOperator("/", BinaryOperator::Type::DIVISION));
 LP op_add(new BinaryOperator("+", BinaryOperator::Type::ADDITION));
 LP op_sub(new BinaryOperator("-", BinaryOperator::Type::SUBTRACTION));
 LP op_mul(new BinaryOperator("*", BinaryOperator::Type::MULTIPLICATION));
-// LP op_mod(new BinaryOperator("%", BinaryOperator::Type::MODULUS));
-// LP op_exp(new BinaryOperator("^", BinaryOperator::Type::EXPONENT));
+LP op_mod(new BinaryOperator("%", BinaryOperator::Type::MODULUS));
+LP op_exp(new BinaryOperator("^", BinaryOperator::Type::EXPONENT));
 
 // Unary ops
 LP op_minus(new UnaryOperator("-", UnaryOperator::Type::MINUS));
@@ -174,25 +190,16 @@ LP l_e(new Literals(Literals::Type::E));
 LP b_open(new Bracket(Bracket::Type::OPEN));
 LP b_clos(new Bracket(Bracket::Type::CLOSED));
 
-LP button_mapping2[MATRIX_COL_SIZE][MATRIX_ROW_SIZE]{
+LP button_mapping[MATRIX_COL_SIZE][MATRIX_ROW_SIZE]{
     {noop, noop, noop, backspace, reflash},
     {noop, noop, noop, noop, noop},
     {noop, noop, noop, noop, noop},
     {l_pi, l_e, op_sin, op_cos, op_tan},
-    {noop, noop, b_open, b_clos, op_div},
+    {op_exp, op_mod, b_open, b_clos, op_div},
     {noop, LITP('7'), LITP('8'), LITP('9'), op_sub},
     {noop, LITP('4'), LITP('5'), LITP('6'), op_mul},
     {noop, LITP('1'), LITP('2'), LITP('3'), op_add},
     {clear, LITP('0'), LITP('.'), op_minus, calc}};
-// todo change to a math mapping
-char button_mapping[MATRIX_COL_SIZE][MATRIX_ROW_SIZE]{
-    {'N', 'N', 'N', '<', 'F'}, {'U', 'L', 'R', 'A', 'B'},
-    {'N', 'D', 'x', 'y', 'z'}, {'p', 'e', 's', 'c', '0'},
-    {'2', '-', '(', ')', '/'}, {'^', '7', '8', '9', '-'},
-    {'<', '4', '5', '6', '*'}, {'X', '1', '2', '3', '+'},
-    {'X', '0', '.', '-', '='}
-
-};
 
 // smile
 uint8_t smile[] = {0x00, 0x00, 0x0A, 0x00, 0x11, 0x0E, 0x00, 0x00};
@@ -230,7 +237,13 @@ int main() {
       // state.lcd.put(std::to_string(but->first) + " " +
       // std::to_string(but->second)); state.lcd.update();
 
-      const auto& mapping = button_mapping2[but->second][but->first];
+      // Clear on next button press if the flag is set
+      if (state.clear) {
+        state.lcd.clear();
+        state.clear = false;
+      }
+
+      const auto& mapping = button_mapping[but->second][but->first];
       switch (mapping->getClassification()) {
         case Letter::Classification::FUNCTION:
           reinterpret_cast<Function&>(*mapping).invoke(state);

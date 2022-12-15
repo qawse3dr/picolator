@@ -26,6 +26,9 @@ struct CalculatorState {
   picolator::math::ExprTree::ExprVec equation;
   int cursor;
 
+  // if the screen should get  cleared on next button press
+  bool clear = false;
+
   // Hardware functions might make use of
   LCD1602 lcd;
 };

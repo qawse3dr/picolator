@@ -220,6 +220,10 @@ void LCD1602::clear() {
   screen_buffer_.emplace_back(std::string(MAX_CHARS, ' '));
   screen_buffer_.emplace_back(std::string(MAX_CHARS, ' '));
 }
+void LCD1602::clear(int y) {
+  screen_buffer_[y].clear();
+  screen_buffer_[y] = std::string(MAX_CHARS, ' ');
+}
 
 void LCD1602::update() {
   for (int i = 0; i < MAX_LINES && (i + screen_y_ < screen_buffer_.size());

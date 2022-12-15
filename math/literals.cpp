@@ -51,15 +51,11 @@ static std::unique_ptr<Constant> createConstant(Literals::Type type,
                                                 const Literals& pow = 1) {
   switch (type) {
     case Literals::Type::PI:  // valid values
-      return std::make_unique<picolator::math::PI>(
-          std::make_unique<Literals>(x), std::make_unique<Literals>(pow));
+      return std::unique_ptr<Constant>(new picolator::math::PI(x, pow));
     case Literals::Type::E:
-      return std::make_unique<picolator::math::E>(
-          std::make_unique<Literals>(x), std::make_unique<Literals>(pow));
-    default:
-      // todo throw error
-      return std::make_unique<picolator::math::PI>(
-          std::make_unique<Literals>(0), std::make_unique<Literals>(0));
+      return std::unique_ptr<Constant>(new picolator::math::E(x, pow));
+    default:  // not a const ignore
+      return nullptr;
   }
 }
 
@@ -83,7 +79,9 @@ Literals::Literals(const Literals& numerator, const Literals& denominator)
 Literals::Literals(const Literals& rhs)
     : Letter(rhs.getValue(), rhs.getClassification(), 0),
       type_(rhs.type_),
-      variable_(rhs.variable_) {
+      variable_(rhs.variable_),
+      constant_(
+          createConstant(rhs.type_, rhs.constant_->x_, rhs.constant_->pow_)) {
   switch (type_) {
     case Type::DOUBLE:
       num_ = std::get<double>(rhs.num_);
@@ -96,6 +94,8 @@ Literals::Literals(const Literals& rhs)
       num_.emplace<Fraction>(std::move(frac));
       break;
     }
+    default:
+      break;
   }
 }
 
@@ -111,11 +111,11 @@ double Literals::getDouble() const {
       return std::get<Fraction>(num_).numerator->getDouble() /
              std::get<Fraction>(num_).denominator->getDouble();
     case Type::PI:
-      return constant_->x_->getDouble() *
-             pow(PI::value, constant_->pow_->getDouble());
+      return constant_->x_.getDouble() *
+             pow(PI::value, constant_->pow_.getDouble());
     case Type::E:
-      return constant_->x_->getDouble() *
-             pow(E::value, constant_->pow_->getDouble());
+      return constant_->x_.getDouble() *
+             pow(E::value, constant_->pow_.getDouble());
     case Type::ANS:
       return ans_;
     default:
@@ -130,7 +130,7 @@ long Literals::getLong() const {
       return std::get<long>(num_);
     default:
       // TODO throw error
-      return 0;
+      throw TypeError("getLong", "int");
   }
 }
 
@@ -138,7 +138,7 @@ const Literals::Fraction& Literals::getFraction() {
   if (type_ == Type::FRACTION) {
     return std::get<Fraction>(num_);
   } else {
-    // TODO throw error
+    throw TypeError("getFrac", "Frac");
   }
 }
 
@@ -161,9 +161,9 @@ Literals Literals::operator+(const Literals& rhs) const {
       }
       case Type::PI:
       case Type::E:
-        if (*rhs.constant_->pow_ == *constant_->pow_) {
-          return Literals(type_, *rhs.constant_->x_ + *constant_->x_,
-                          *constant_->pow_);
+        if (rhs.constant_->pow_ == constant_->pow_) {
+          return Literals(type_, rhs.constant_->x_ + constant_->x_,
+                          constant_->pow_);
         }
     }
   } else if (rhs.type_ == Type::FRACTION && type_ == Type::LONG) {
@@ -192,11 +192,11 @@ Literals Literals::operator*(const Literals& rhs) const {
                         *left.denominator + *right.denominator);
       }
       case Type::PI:
-        return Literals(Type::PI, *rhs.constant_->x_ * *constant_->x_,
-                        *rhs.constant_->pow_ + *constant_->pow_);
+        return Literals(Type::PI, rhs.constant_->x_ * constant_->x_,
+                        rhs.constant_->pow_ + constant_->pow_);
       case Type::E:
-        return Literals(Type::E, *rhs.constant_->x_ * *constant_->x_,
-                        *rhs.constant_->pow_ + *constant_->pow_);
+        return Literals(Type::E, rhs.constant_->x_ * constant_->x_,
+                        rhs.constant_->pow_ + constant_->pow_);
     }
   } else if (rhs.type_ == Type::FRACTION &&
              (type_ == Type::LONG || type_ == Type::PI)) {
@@ -244,11 +244,11 @@ Literals Literals::operator-() const {
                       *std::get<Fraction>(num_).denominator);
     case Type::PI:
     case Type::E:
-      return Literals(type_, -(*constant_->x_), *constant_->pow_);
+      return Literals(type_, -(constant_->x_), constant_->pow_);
     case Type::ANS:
       return ans_;
     default:
       // TODO throw err
-      return 0;
+      throw std::exception();
   }
 }
