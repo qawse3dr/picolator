@@ -1,0 +1,27 @@
+#
+# (C) Copyright 2022 Larry Milne (https://www.larrycloud.ca)
+#
+# This code is distributed on "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# @author: qawse3dr a.k.a Larry Milne
+#
+
+image: gcc:latest
+
+stages:          # List of stages for jobs, and their order of execution
+  - build
+
+
+build-job:       # This job runs in the build stage, which runs first.
+  stage: build
+  before_script:
+    - apt-get -qq update && apt-get -f -qq install cmake gtest || true
+  script:
+    - mkdir build
+    - cd build
+    - cmake -DPICOLATOR_TESTS=1 -DCOVERAGE=1 ..
+    - make
+    - ./test/picolator_test
