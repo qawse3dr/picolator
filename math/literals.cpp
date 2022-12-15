@@ -214,7 +214,7 @@ Literals Literals::operator*(const Literals& rhs) const {
     const Fraction& frac = std::get<Fraction>(num_);
     return Literals(rhs * *frac.numerator, *frac.denominator);
   }
-  return Literals(rhs.getDouble() + rhs.getDouble());
+  return Literals(rhs.getDouble() * getDouble());
 }
 
 Literals Literals::operator/(const Literals& rhs) const {

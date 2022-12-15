@@ -13,14 +13,18 @@
 #include <vector>
 
 #include "math/binary_operator.h"
+#include "math/bracket.h"
 #include "math/expr_tree.h"
 #include "math/literals.h"
 #include "math/literals_piece.h"
 #include "math/unary_operator.h"
 
 using picolator::math::BinaryOperator;
+using picolator::math::Bracket;
 using picolator::math::ExprTree;
+using picolator::math::Literals;
 using picolator::math::LiteralsPiece;
+
 using picolator::math::UnaryOperator;
 
 namespace picolator::math {
@@ -155,4 +159,71 @@ TEST(ExprTree, Addition_and_Mult) {
   ASSERT_EQ(10, tree.getRoot()->children[0]->current_value->getLong());
 
   ASSERT_EQ(tree.isi.getValue(), 154.0f);
+}
+
+TEST(ExprTree, Addition_and_Mult_Brackets) {
+  ExprTree::ExprVec letters;
+  letters.emplace_back(ExprTree::LetterPtr(new Bracket(Bracket::Type::OPEN)));
+  letters.emplace_back(ExprTree::LetterPtr(new LiteralsPiece('1')));
+  letters.emplace_back(ExprTree::LetterPtr(new LiteralsPiece('0')));
+  letters.emplace_back(ExprTree::LetterPtr(
+      new BinaryOperator("+", BinaryOperator::Type::ADDITION)));
+  letters.emplace_back(ExprTree::LetterPtr(new LiteralsPiece('1')));
+  letters.emplace_back(ExprTree::LetterPtr(new LiteralsPiece('2')));
+  letters.emplace_back(ExprTree::LetterPtr(new Bracket(Bracket::Type::CLOSED)));
+  letters.emplace_back(ExprTree::LetterPtr(
+      new BinaryOperator("*", BinaryOperator::Type::MULTIPLICATION)));
+  letters.emplace_back(ExprTree::LetterPtr(new LiteralsPiece('2')));
+
+  picolator::math::ExprTreeTester tree(letters);
+  ASSERT_TRUE(tree.getRoot());
+  ASSERT_EQ(
+      BinaryOperator::Type::MULTIPLICATION,
+      reinterpret_cast<BinaryOperator&>(*(tree.getRoot()->value)).getType());
+  ASSERT_EQ(2, tree.getRoot()->children.size());
+  ASSERT_EQ(2,
+            reinterpret_cast<Literals&>(*(tree.getRoot()->children[1]->value))
+                .getLong());
+  ASSERT_EQ(
+      BinaryOperator::Type::ADDITION,
+      reinterpret_cast<BinaryOperator&>(*(tree.getRoot()->children[0]->value))
+          .getType());
+  ASSERT_EQ(3, tree.countLeafs(tree.getRoot()));
+
+  ASSERT_EQ(tree.isi.getValue(), 44.0f);
+}
+
+TEST(ExprTree, Bracket_MULT) {
+  ExprTree::ExprVec letters;
+  letters.emplace_back(ExprTree::LetterPtr(new LiteralsPiece('0')));
+  letters.emplace_back(ExprTree::LetterPtr(new LiteralsPiece('.')));
+  letters.emplace_back(ExprTree::LetterPtr(new LiteralsPiece('5')));
+  letters.emplace_back(ExprTree::LetterPtr(new Bracket(Bracket::Type::OPEN)));
+  letters.emplace_back(ExprTree::LetterPtr(new LiteralsPiece('1')));
+  letters.emplace_back(ExprTree::LetterPtr(new LiteralsPiece('0')));
+  letters.emplace_back(ExprTree::LetterPtr(
+      new BinaryOperator("+", BinaryOperator::Type::ADDITION)));
+  letters.emplace_back(ExprTree::LetterPtr(new LiteralsPiece('1')));
+  letters.emplace_back(ExprTree::LetterPtr(new LiteralsPiece('2')));
+  letters.emplace_back(ExprTree::LetterPtr(new Bracket(Bracket::Type::CLOSED)));
+  letters.emplace_back(ExprTree::LetterPtr(
+      new BinaryOperator("*", BinaryOperator::Type::MULTIPLICATION)));
+  letters.emplace_back(ExprTree::LetterPtr(new LiteralsPiece('2')));
+
+  picolator::math::ExprTreeTester tree(letters);
+
+  ASSERT_TRUE(tree.getRoot());
+  ASSERT_EQ(
+      BinaryOperator::Type::MULTIPLICATION,
+      reinterpret_cast<BinaryOperator&>(*(tree.getRoot()->value)).getType());
+  ASSERT_EQ(2, tree.getRoot()->children.size());
+  ASSERT_EQ(0.5,
+            reinterpret_cast<Literals&>(*(tree.getRoot()->children[0]->value))
+                .getDouble());
+  ASSERT_EQ(
+      BinaryOperator::Type::ADDITION,
+      reinterpret_cast<BinaryOperator&>(*(tree.getRoot()->children[0]->value))
+          .getType());
+
+  ASSERT_EQ(tree.isi.getValue(), 22.0f);
 }

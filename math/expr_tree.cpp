@@ -130,14 +130,8 @@ int ExprTree::countLeafs(
   return count;
 }
 
-// void ExprTree::validateBrackets(const std::vector<std::unique_ptr<Letter>>&
-// expr, size_t start,
-//                                 size_t end){throw SyntaxError()}
-
 // Init tree putting all literals into 1 object and grouping brackets into 1
 // Letter
-
-// todo change vector of letters to vector of unique_ptr to letters
 ExprTree::ExprVec ExprTree::minimizeTreeInput(const ExprTree::ExprVec& expr) {
   ExprVec minimized_literal_input;
 
@@ -157,7 +151,9 @@ ExprTree::ExprVec ExprTree::minimizeTreeInput(const ExprTree::ExprVec& expr) {
         }
         cur_literal = "";
         has_decimal = false;
-        if (l->getClassification() == Letter::Classification::BRACKET ||
+        if (l->getClassification() == Letter::Classification::BRACKET &&
+                reinterpret_cast<const Bracket&>(*l).getType() ==
+                    Bracket::Type::OPEN ||
             l->getClassification() == Letter::Classification::LITERAL) {
           // add a mult symbol
           minimized_literal_input.emplace_back(
@@ -191,16 +187,20 @@ ExprTree::ExprVec ExprTree::minimizeTreeInput(const ExprTree::ExprVec& expr) {
     if (l->getClassification() == Letter ::Classification::BRACKET &&
         reinterpret_cast<const Bracket&>(*l).getType() !=
             Bracket::Type::EQUATION) {
-      if (reinterpret_cast<const Bracket&>(*l).getType() !=
+      if (reinterpret_cast<const Bracket&>(*l).getType() ==
           Bracket::Type::OPEN) {
-        bracket_stack.push(ExprVec());
+        std::cout << "opening bracket" << std::endl;
+        bracket_stack.emplace(ExprVec());
       } else {
-        if (bracket_stack.empty()) {
+        std::cout << "closing bracket" << std::endl;
+
+        if (bracket_stack.size() == 1) {
+          std::cout << "Adding it to bracket" << std::endl;
           minimized_input.emplace_back(
-              new Bracket(std::move(bracket_stack.top())));
+              LetterPtr(new Bracket(std::move(bracket_stack.top()))));
           bracket_stack.pop();
         } else {
-          auto* brack = new Bracket(std::move(bracket_stack.top()));
+          Bracket* brack = new Bracket(std::move(bracket_stack.top()));
           bracket_stack.pop();
           bracket_stack.top().emplace_back(std::move(brack));
         }
@@ -218,6 +218,7 @@ ExprTree::ExprVec ExprTree::minimizeTreeInput(const ExprTree::ExprVec& expr) {
 }
 
 ExprTree::ExprTreeNodePtr ExprTree::createTree(const ExprTree::ExprVec& expr) {
+  std::cout << "Tree parsed" << std::endl;
   if (expr.empty()) {
     return nullptr;  // no expresion to parse
   }
@@ -242,6 +243,7 @@ ExprTree::ExprTreeNodePtr ExprTree::createTree(const ExprTree::ExprVec& expr) {
                                   return l1->getPriority() < l2->getPriority();
                                 });
   size_t op_pos = std::distance(expr.begin(), op_it);
+  std::cout << (*op_it)->getValue() << std::endl;
 
   if (expr[op_pos]->getClassification() == Letter::Classification::BINARY) {
     ExprVec lhs;
@@ -274,6 +276,14 @@ ExprTree::ExprTreeNodePtr ExprTree::createTree(const ExprTree::ExprVec& expr) {
       node->value = *op_it;
       return node;
     }
+  } else if (expr[op_pos]->getClassification() ==
+             Letter::Classification::BRACKET) {
+    std::cout << "adding bracket" << std::endl;
+    const Bracket& brack = reinterpret_cast<const Bracket&>(**op_it);
+    for (const auto& letter : brack.letters_) {
+      std::cout << letter->getValue() << std::endl;
+    }
+    return createTree(brack.letters_);
   } else {
     throw std::exception();
   }
