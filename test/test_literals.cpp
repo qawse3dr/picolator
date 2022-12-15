@@ -55,4 +55,7 @@ TEST(LiteralsTest, Addition) {
       (Literals(Literals::Type::PI, 1, 3) + Literals(Literals::Type::PI, 1, 5))
           .getDouble(),
       pow(picolator::math::PI::value, 3) + pow(picolator::math::PI::value, 5));
+  ASSERT_EQ(
+      (Literals(Literals::Type::PI) + Literals(Literals::Type::PI)).getDouble(),
+      2 * picolator::math::PI::value);
 }

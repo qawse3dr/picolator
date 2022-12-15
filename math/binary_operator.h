@@ -13,6 +13,7 @@
 
 #include "letter.h"
 #include "literals.h"
+#include "math_util.h"
 
 namespace picolator::math {
 class BinaryOperator : public Letter {
@@ -66,11 +67,18 @@ class BinaryOperator : public Letter {
         return lhs * rhs;
         break;
       case Type::DIVISION:
+        if (rhs.getDouble() == 0) throw DomainError("/");
         return lhs / rhs;
       case Type::EXPONENT:
+        if (lhs.getDouble() == 0 && rhs.getDouble() == 0)
+          throw DomainError("exp");
         return pow(lhs.getDouble(), rhs.getDouble());
-      default:  // todo impl mod and nth root
-        return 0;
+      case Type::N_TH_ROOT:
+        if (lhs.getDouble() == 0) throw DomainError("n_sqrt()");
+        // This is meant to be backwards
+        return pow(rhs.getDouble(), 1 / lhs.getDouble());
+      case Type::MODULUS:
+        return lhs % rhs;
     }
   }
 

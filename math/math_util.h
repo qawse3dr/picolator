@@ -19,11 +19,33 @@ namespace picolator::math {
 // if invalid values are given
 
 class DomainError : public std::exception {
-  const char* what() const throw() { return "Domain error"; }
+ private:
+  std::string msg_;
+
+ public:
+  const char* what() const throw() { return msg_.c_str(); }
+  DomainError(const std::string& ftn_name) : msg_(ftn_name + " Domain error") {}
 };
 
 class SyntaxError : public std::exception {
-  const char* what() const throw() { return "Domain error"; }
+ private:
+  std::string msg_;
+
+ public:
+  const char* what() const throw() { return msg_.c_str(); }
+  SyntaxError(const std::string& msg, int idx)
+      : msg_("Syntax error: " + msg), idx_(idx) {}
+  const int idx_;
+};
+
+class TypeError : public std::exception {
+ private:
+  std::string msg_;
+
+ public:
+  const char* what() const throw() { return msg_.c_str(); }
+  TypeError(const std::string& ftn, const std::string& type)
+      : msg_("Type error: " + ftn + " needs " + type) {}
 };
 
 Literals pcos(const Literals& radian);

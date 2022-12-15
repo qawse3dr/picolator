@@ -10,6 +10,8 @@
  */
 #include "literals.h"
 
+#include "math_util.h"
+
 using picolator::math::Constant;
 using picolator::math::Literals;
 
@@ -18,7 +20,7 @@ double picolator::math::Literals::ans_ = 0;
 std::string typeToString(Literals::Type type) {
   switch (type) {
     case Literals::Type::PI:
-      return "\x7F";
+      return "\xF7";
     case Literals::Type::E:
       return "e";
     case Literals::Type::ANS:
@@ -44,24 +46,9 @@ Literals::Literals(char c)
       variable_(c),
       type_(Type::VARIABLE) {}
 
-Literals::Literals(Type type)
-    : Letter(typeToString(type), Letter::Classification::LITERAL, 0),
-      type_(type) {
-  switch (type_) {
-    case Type::PI:  // valid values
-    case Type::E:
-    case Type::ANS:
-      return;
-    default:
-      return;
-      // todo throw error. (maybe this should be done in a factory so I can
-      // throw errors)
-  }
-}
-
-static std::unique_ptr<Constant> createConstant(
-    Literals::Type type, const Literals& x = Literals(1),
-    const Literals& pow = Literals(1)) {
+static std::unique_ptr<Constant> createConstant(Literals::Type type,
+                                                const Literals& x = 1,
+                                                const Literals& pow = 1) {
   switch (type) {
     case Literals::Type::PI:  // valid values
       return std::make_unique<picolator::math::PI>(
@@ -75,6 +62,12 @@ static std::unique_ptr<Constant> createConstant(
           std::make_unique<Literals>(0), std::make_unique<Literals>(0));
   }
 }
+
+Literals::Literals(Type type)
+    : Letter(typeToString(type), Letter::Classification::LITERAL, 0),
+      type_(type),
+      constant_(createConstant(type, Literals(1L), Literals(1L))) {
+}  // todo add erro checking
 
 Literals::Literals(Type type, const Literals& x, const Literals& pow)
     : Letter(typeToString(type), Letter::Classification::LITERAL, 0),
@@ -223,6 +216,13 @@ Literals Literals::operator/(const Literals& rhs) const {
     return Literals(*this, rhs);
   }
   return getDouble() / rhs.getDouble();
+}
+
+Literals Literals::operator%(const Literals& rhs) const {
+  if (rhs.type_ != Type::LONG || type_ != Type::LONG) {
+    throw picolator::math::TypeError("%", "Int");
+  }
+  return getLong() % rhs.getLong();
 }
 
 bool Literals::operator==(const Literals& rhs) const {

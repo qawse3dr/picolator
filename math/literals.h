@@ -12,7 +12,6 @@
 
 #include <math.h>
 
-#include <iostream>
 #include <limits>
 #include <memory>
 #include <string>
@@ -125,7 +124,6 @@ class Literals : public Letter {
 
   // Const Constructors
   Literals(Type type);
-  Literals(std::string&& val);  // Used for EXPANDED form
   Literals(Type type, const Literals& x, const Literals& pow);
   Literals(const Literals&);
 
@@ -138,6 +136,7 @@ class Literals : public Letter {
   Literals operator+(const Literals& rhs) const;
   Literals operator*(const Literals& rhs) const;
   Literals operator/(const Literals& rhs) const;
+  Literals operator%(const Literals& rhs) const;
   bool operator==(const Literals& rhs) const;
   Literals operator-() const;
 };

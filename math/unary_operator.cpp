@@ -29,6 +29,7 @@ Literals UnaryOperator::solve(const Literals& input) {
     case Type::TAN:
       return picolator::math::ptan(input);
     case Type::SQUARE_ROOT:
+      if (input.getDouble() < 0) throw DomainError("sqrt");
       return sqrt(input.getDouble());
     default:
       return 0;

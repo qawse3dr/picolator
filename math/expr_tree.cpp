@@ -210,6 +210,15 @@ ExprTree::ExprVec ExprTree::minimizeTreeInput(const ExprTree::ExprVec& expr) {
     }
   }
 
+  if (bracket_stack.size() == 1) {
+    minimized_input.emplace_back(
+        LetterPtr(new Bracket(std::move(bracket_stack.top()))));
+  }
+
+  if (bracket_stack.size() > 2) {
+    throw SyntaxError("", 0);
+  }
+
   return minimized_input;
 }
 
@@ -241,6 +250,11 @@ ExprTree::ExprTreeNodePtr ExprTree::createTree(const ExprTree::ExprVec& expr) {
 
   if (expr[op_pos]->getClassification() == Letter::Classification::BINARY) {
     ExprVec lhs;
+
+    if (op_pos == 0 || op_pos == expr.size() - 1) {
+      throw picolator::math::SyntaxError("", 0);
+    }
+
     for (auto it = expr.begin(); it < op_it; it++) {
       lhs.push_back(*it);
     }
@@ -258,7 +272,7 @@ ExprTree::ExprTreeNodePtr ExprTree::createTree(const ExprTree::ExprVec& expr) {
   } else if (expr[op_pos]->getClassification() ==
              Letter::Classification::UNARY) {
     if (op_pos != 0) {
-      throw std::exception();
+      throw picolator::math::SyntaxError("", 0);
     } else {
       ExprVec rhs;
       for (auto it = op_it + 1; it < expr.end(); it++) {
@@ -274,7 +288,7 @@ ExprTree::ExprTreeNodePtr ExprTree::createTree(const ExprTree::ExprVec& expr) {
              Letter::Classification::BRACKET) {
     const Bracket& brack = reinterpret_cast<const Bracket&>(**op_it);
     return createTree(brack.letters_);
-  } else {
+  } else {  // invalid op not sure what I should do here
     throw std::exception();
   }
 }

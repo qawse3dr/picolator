@@ -15,6 +15,7 @@
 #include "math/binary_operator.h"
 #include "math/bracket.h"
 #include "math/expr_tree.h"
+#include "math/function.h"
 #include "math/literals.h"
 #include "math/literals_piece.h"
 #include "math/unary_operator.h"
@@ -226,4 +227,19 @@ TEST(ExprTree, Bracket_MULT) {
           .getType());
 
   ASSERT_EQ(tree.isi.getValue(), 22.0f);
+}
+
+// Sin pi
+TEST(ExprTree, sin_pi) {
+  ExprTree::ExprVec letters;
+  letters.emplace_back(
+      ExprTree::LetterPtr(new UnaryOperator("sin", UnaryOperator::Type::SIN)));
+  letters.emplace_back(ExprTree::LetterPtr(new Bracket(Bracket::Type::OPEN)));
+  letters.emplace_back(
+      ExprTree::LetterPtr(new Literals(Literals::Type::PI, 1L, 1L)));
+
+  letters.emplace_back(ExprTree::LetterPtr(new Bracket(Bracket::Type::CLOSED)));
+  picolator::math::ExprTreeTester tree(letters);
+
+  // ASSERT_EQ(tree.isi.getValue(), 0);
 }

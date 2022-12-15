@@ -8,14 +8,11 @@
  *
  * @author: qawse3dr a.k.a Larry Milne
  */
+#include "math_util.h"
+
 #include <cmath>
 #include <cstdint>
 #include <limits>
-
-#include "math_util.h"
-
-// todo remove
-#include <iostream>
 
 namespace picolator::math {
 

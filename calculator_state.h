@@ -12,9 +12,8 @@
 
 #include <vector>
 
-// #include "larrys_pico/LCD1602.h"
+#include "larrys_pico/LCD1602.h"
 #include "math/expr_tree.h"
-class LCD1602;
 
 struct CalculatorState {
   // Holds a pointer to the current equation (should be index 0)

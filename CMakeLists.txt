@@ -2,7 +2,7 @@
 # (C) Copyright 2022 Larry Milne (https://www.larrycloud.ca)
 #
 # This code is distributed on "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
+# WITHOUT WARRANTINES OR CONDITIONS OF ANY KIND.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
@@ -20,6 +20,9 @@ endif()
 
 project(Picolator C CXX ASM)
 
+set(CMAKE_CXX_FLAGS '-g')
+
+
 # any platform independant code
 add_library(picolator_objlib
   OBJECT 
@@ -31,9 +34,12 @@ add_library(picolator_objlib
 )
 target_link_libraries(picolator_objlib PUBLIC m)
 target_include_directories(picolator_objlib PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR})
-set(CMAKE_CXX_FLAGS  "-g")
+
 # Check if we are running tests
 if(NOT DEFINED PICOLATOR_TEST)
+
+  # Enable exception
+  set(PICO_CXX_ENABLE_EXCEPTIONS 1)
 
   # Initialize the SDK
   pico_sdk_init()
