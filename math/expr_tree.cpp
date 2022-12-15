@@ -189,13 +189,9 @@ ExprTree::ExprVec ExprTree::minimizeTreeInput(const ExprTree::ExprVec& expr) {
             Bracket::Type::EQUATION) {
       if (reinterpret_cast<const Bracket&>(*l).getType() ==
           Bracket::Type::OPEN) {
-        std::cout << "opening bracket" << std::endl;
         bracket_stack.emplace(ExprVec());
       } else {
-        std::cout << "closing bracket" << std::endl;
-
         if (bracket_stack.size() == 1) {
-          std::cout << "Adding it to bracket" << std::endl;
           minimized_input.emplace_back(
               LetterPtr(new Bracket(std::move(bracket_stack.top()))));
           bracket_stack.pop();
@@ -218,7 +214,6 @@ ExprTree::ExprVec ExprTree::minimizeTreeInput(const ExprTree::ExprVec& expr) {
 }
 
 ExprTree::ExprTreeNodePtr ExprTree::createTree(const ExprTree::ExprVec& expr) {
-  std::cout << "Tree parsed" << std::endl;
   if (expr.empty()) {
     return nullptr;  // no expresion to parse
   }
@@ -243,7 +238,6 @@ ExprTree::ExprTreeNodePtr ExprTree::createTree(const ExprTree::ExprVec& expr) {
                                   return l1->getPriority() < l2->getPriority();
                                 });
   size_t op_pos = std::distance(expr.begin(), op_it);
-  std::cout << (*op_it)->getValue() << std::endl;
 
   if (expr[op_pos]->getClassification() == Letter::Classification::BINARY) {
     ExprVec lhs;
@@ -278,11 +272,7 @@ ExprTree::ExprTreeNodePtr ExprTree::createTree(const ExprTree::ExprVec& expr) {
     }
   } else if (expr[op_pos]->getClassification() ==
              Letter::Classification::BRACKET) {
-    std::cout << "adding bracket" << std::endl;
     const Bracket& brack = reinterpret_cast<const Bracket&>(**op_it);
-    for (const auto& letter : brack.letters_) {
-      std::cout << letter->getValue() << std::endl;
-    }
     return createTree(brack.letters_);
   } else {
     throw std::exception();

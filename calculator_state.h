@@ -12,18 +12,21 @@
 
 #include <vector>
 
-namespace picolator::math {
-class Letter;
-}
+// #include "larrys_pico/LCD1602.h"
+#include "math/expr_tree.h"
+class LCD1602;
 
 struct CalculatorState {
   // Holds a pointer to the current equation (should be index 0)
   // might be able to remove
-  std::vector<picolator::math::Letter> cur_equation;
-  int cursor;
-  float ans;
+  std::vector<picolator::math::ExprTree::ExprVec> history;
+  int history_cursor;
+  picolator::math::Literals ans = {0};
 
   // Holds all the equations in memory
-  std::vector<std::vector<picolator::math::Letter>> equations;
-  int equation_idx;
+  picolator::math::ExprTree::ExprVec equation;
+  int cursor;
+
+  // Hardware functions might make use of
+  LCD1602 lcd;
 };

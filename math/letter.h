@@ -13,8 +13,6 @@
 #include <string>
 #include <vector>
 
-#include "calculator_state.h"
-
 namespace picolator::math {
 
 class Letter {
