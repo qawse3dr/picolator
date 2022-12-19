@@ -20,7 +20,7 @@ struct CalculatorState {
   // might be able to remove
   std::vector<picolator::math::ExprTree::ExprVec> history;
   int history_cursor;
-  picolator::math::Literals ans = {0};
+  picolator::math::ExprTree::LiteralPtr ans = {0};
 
   // Holds all the equations in memory
   picolator::math::ExprTree::ExprVec equation;
@@ -28,6 +28,13 @@ struct CalculatorState {
 
   // if the screen should get  cleared on next button press
   bool clear = false;
+  bool cleared = false;  // If the screen got cleared this frame
+
+  // if the new character should overwrite or insert into place
+  bool insert_mode = false;
+
+  // 2nd layer toggle
+  bool layer2 = false;
 
   // Hardware functions might make use of
   LCD1602 lcd;

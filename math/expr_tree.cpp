@@ -39,12 +39,12 @@ ExprTree::ExprTree(const ExprTree::ExprVec& expr) {
   (l->value->getClassification() == Letter::Classification::LITERAL || \
    l->current_value != nullptr)
 
-#define LETTER_PTR_GET_VALUE(l)        \
-  ((l->current_value != nullptr)       \
-       ? l->current_value->getDouble() \
-       : reinterpret_cast<const Literals&>(*l->value).getDouble())
+#define LETTER_PTR_GET_VALUE(l)                               \
+  ((l->current_value != nullptr)                              \
+       ? reinterpret_cast<const Literals&>(*l->current_value) \
+       : reinterpret_cast<const Literals&>(*l->value))
 
-float ExprTree::getValue() {
+ExprTree::LiteralPtr ExprTree::getValue() {
   std::stack<ExprTreeNode*> node_stack;
   node_stack.emplace(root_.get());
 
@@ -99,7 +99,7 @@ float ExprTree::getValue() {
         break;
     }
   }
-  return LETTER_PTR_GET_VALUE(root_);
+  return LiteralPtr(new Literals(LETTER_PTR_GET_VALUE(root_)));
 }
 
 void ExprTree::print() {
@@ -191,6 +191,9 @@ ExprTree::ExprVec ExprTree::minimizeTreeInput(const ExprTree::ExprVec& expr) {
           Bracket::Type::OPEN) {
         bracket_stack.emplace(ExprVec());
       } else {
+        if (bracket_stack.top().empty()) {
+          throw SyntaxError("Empty Bracket", 0);
+        }
         if (bracket_stack.size() == 1) {
           minimized_input.emplace_back(
               LetterPtr(new Bracket(std::move(bracket_stack.top()))));
@@ -211,6 +214,9 @@ ExprTree::ExprVec ExprTree::minimizeTreeInput(const ExprTree::ExprVec& expr) {
   }
 
   if (bracket_stack.size() == 1) {
+    if (bracket_stack.top().empty()) {
+      throw SyntaxError("Empty Bracket", 0);
+    }
     minimized_input.emplace_back(
         LetterPtr(new Bracket(std::move(bracket_stack.top()))));
   }
@@ -271,7 +277,7 @@ ExprTree::ExprTreeNodePtr ExprTree::createTree(const ExprTree::ExprVec& expr) {
     return node;
   } else if (expr[op_pos]->getClassification() ==
              Letter::Classification::UNARY) {
-    if (op_pos != 0) {
+    if (op_pos != 0 || expr.size() == 1) {
       throw picolator::math::SyntaxError("", 0);
     } else {
       ExprVec rhs;

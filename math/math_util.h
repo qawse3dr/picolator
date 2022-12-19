@@ -48,6 +48,15 @@ class TypeError : public std::exception {
       : msg_("Type error: " + ftn + " needs " + type) {}
 };
 
+class NotImplementedError : public std::exception {
+ private:
+  std::string msg_;
+
+ public:
+  const char* what() const throw() { return msg_.c_str(); }
+  NotImplementedError(const std::string& func) : msg_("NOT IMPL: " + func) {}
+};
+
 Literals pcos(const Literals& radian);
 Literals psin(const Literals& radian);
 Literals ptan(const Literals& radian);

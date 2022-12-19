@@ -23,7 +23,7 @@ namespace picolator::math {
  * @param res
  * @return double
  */
-double specialSineValues(double res) {
+Literals specialSineValues(double res) {
   if (std::fabs(1 - res) < std::numeric_limits<double>::epsilon() * 2) {
     return 1;
   } else if (std::fabs(-1 - res) < std::numeric_limits<double>::epsilon() * 2) {
@@ -36,17 +36,31 @@ double specialSineValues(double res) {
 }
 
 Literals pcos(const Literals& radian) {
-  return specialSineValues(cos(radian.getDouble()));
+  return specialSineValues(cos(radian.getValue()));
 }
 
 Literals psin(const Literals& radian) {
-  return specialSineValues(sin(radian.getDouble()));
+  return specialSineValues(sin(radian.getValue()));
 }
 
 Literals ptan(const Literals& radian) {
   // Check if its
   // pi/2
-  return specialSineValues(tan(radian.getDouble()));
+  return specialSineValues(tan(radian.getValue()));
+}
+
+Literals parccos(const Literals& x) {
+  return specialSineValues(acos(x.getValue()));
+}
+
+Literals parcsin(const Literals& x) {
+  return specialSineValues(asin(x.getValue()));
+}
+
+Literals parctan(const Literals& x) {
+  // Check if its
+  // pi/2
+  return specialSineValues(atan(x.getValue()));
 }
 
 }  // namespace picolator::math

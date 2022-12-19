@@ -26,11 +26,10 @@ class Letter {
     FUNCTION
   };
 
- private:
-  std::string value_;
+ protected:
+  std::string symbol_;
   Classification classification_;
 
- protected:
   /** used when creating the tree.
    * priority should go
    * 0 Literals
@@ -45,12 +44,12 @@ class Letter {
   uint8_t priority_;
 
  public:
-  Letter(std::string value, Classification c, uint8_t priority)
-      : value_(value), classification_(c), priority_(priority){};
+  Letter(std::string symbol, Classification c, uint8_t priority)
+      : symbol_(symbol), classification_(c), priority_(priority){};
 
   const Classification& getClassification() const { return classification_; }
 
-  std::string getValue() const { return value_; }
+  std::string getSymbol() const { return symbol_; }
 
   inline int8_t getPriority() const { return priority_; }
 };

@@ -28,9 +28,18 @@ Literals UnaryOperator::solve(const Literals& input) {
       return picolator::math::pcos(input);
     case Type::TAN:
       return picolator::math::ptan(input);
+    case Type::ARCSIN:
+      return picolator::math::parcsin(input);
+    case Type::ARCCOS:
+      return picolator::math::parccos(input);
+    case Type::ARCTAN:
+      return picolator::math::parctan(input);
     case Type::SQUARE_ROOT:
-      if (input.getDouble() < 0) throw DomainError("sqrt");
-      return sqrt(input.getDouble());
+      if (input.getValue() < 0) throw DomainError("sqrt");
+      return sqrt(input.getValue());
+    case Type::LN:
+      if (input.getValue() <= 0) throw DomainError("ln");
+      return log(input.getValue());
     default:
       return 0;
       break;

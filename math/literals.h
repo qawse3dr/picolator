@@ -51,13 +51,20 @@ class Literals : public Letter {
     }
   };
 
-  static double ans_;
+  static const Literals* ans_;
 
  private:
   Type type_;
   std::variant<Fraction, double, long> num_ = 0L;
   char variable_ = ' ';
   std::unique_ptr<Constant> constant_ = {};
+
+  long getLong() const;
+  double getDouble() const;
+  Literals& getNumerator() const;
+  Literals& getDenominator() const;
+  Constant& getConstant() const;
+  const Fraction& getFraction() const;
 
  public:
   /**
@@ -102,10 +109,16 @@ class Literals : public Letter {
   Literals(Type type, const Literals& x, const Literals& pow);
   Literals(const Literals&);
 
-  double getDouble() const;
-  long getLong() const;
-  const Fraction& getFraction();
-  const Type& getType() const { return type_; }
+  // Returns a double value of the Literals
+  double getValue() const;
+  inline const Type& getType() const {
+    return (type_ == Type::ANS) ? getAnswer().getType() : type_;
+  }
+
+  // SingletonAnswer
+  static Literals& getAnswer();
+
+  std::string toString() const;
 
   // I need this because I am crazy
   Literals operator+(const Literals& rhs) const;
@@ -114,6 +127,9 @@ class Literals : public Letter {
   Literals operator%(const Literals& rhs) const;
   bool operator==(const Literals& rhs) const;
   Literals operator-() const;
+
+  // copy operator
+  Literals operator=(const Literals& rhs);
 };
 
 class Constant {

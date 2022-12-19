@@ -20,8 +20,10 @@
 #include <string>
 #include <vector>
 
-#include "bsp/board.h"
+// needed for stdout
+// #include "bsp/board.h"
 #include "calculator_state.h"
+#include "callbacks.h"
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"
 #include "math/binary_operator.h"
@@ -42,127 +44,29 @@
 
 using picolator::math::BinaryOperator;
 using picolator::math::Bracket;
-using picolator::math::DomainError;
 using picolator::math::ExprTree;
 using picolator::math::Function;
 using picolator::math::Letter;
 using picolator::math::Literals;
 using picolator::math::LiteralsPiece;
-using picolator::math::SyntaxError;
-using picolator::math::TypeError;
 using picolator::math::UnaryOperator;
+
 using LP = ExprTree::LetterPtr;
 
-int cursorIndexToLcdIndex(const CalculatorState& state) {
-  int lcd_cursor = 0;
-  int count = 0;
-  for (auto& e : state.equation) {
-    if (count++ < state.cursor) {
-      lcd_cursor += e->getValue().length();
-    } else {
-      break;
-    }
-  }
-  return lcd_cursor;
-}
-
-void reflash_callback(CalculatorState& state) {
-  state.lcd.clear();
-  state.lcd.setCursor(0, 0);
-  state.lcd.put("re-flash mode");
-  state.lcd.setCursor(1, 0);
-  state.lcd.put("unplug battery!");
-  state.lcd.update();
-
-  reset_usb_boot(0, 0);
-}
-LP reflash(new Function(reflash_callback));
+LP reflash(new Function(reflash_cb));
 
 // No Operation just a placeholder for blank keys
-void noOp(CalculatorState&){};
 LP noop(new Function(noOp));
 
-// Moves cursors 1 to the left
-void moveLeft(CalculatorState& state) {}
-
-// Calculates the result and prints it on
-// the screen. or display error in case of error
-void calculate_cb(CalculatorState& state) {
-  float value = 0;
-  try {
-    auto tree = ExprTree(state.equation);
-    value = tree.getValue();
-
-  } catch (const DomainError& e) {
-    state.lcd.setCursor(1, 0);
-    state.lcd.put(e.what());
-    state.lcd.setView(0, 0);
-    state.lcd.setCursor(0, 0);
-    state.lcd.update();
-    return;
-  } catch (const SyntaxError& e) {
-    state.lcd.setCursor(1, 0);
-    state.lcd.put(e.what());
-    state.lcd.setView(0, 0);
-    state.lcd.setCursor(0, cursorIndexToLcdIndex(state));
-
-    state.lcd.update();
-    return;
-  } catch (const TypeError& e) {
-    state.lcd.setCursor(1, 0);
-    state.lcd.put(e.what());
-    state.lcd.setView(0, 0);
-    state.lcd.setCursor(0, 0);
-    state.lcd.update();
-    return;
-  } catch (...) {
-    state.lcd.setCursor(1, 0);
-    state.lcd.put("caught error");
-    state.lcd.setView(0, 0);
-    state.lcd.setCursor(0, 0);
-    state.lcd.update();
-    return;
-  }
-
-  state.clear = true;
-  state.lcd.setCursor(1, 0);
-  state.lcd.put("ans " + std::to_string(value));
-  state.lcd.setCursor(0, 0);
-  state.lcd.setView(0, 0);
-  state.lcd.update();
-  state.cursor = 0;
-
-  // Save the equation in the history
-  state.history.push_back(state.equation);
-  state.equation.clear();
-}
+LP moveLeft(new Function(moveLeft_cb));
+LP moveRight(new Function(moveRight_cb));
+LP moveUp(new Function(moveUp_cb));
+LP moveDown(new Function(moveDown_cb));
 LP calc(new Function(calculate_cb));
-
-// Clears the screen and the result
-void clear_cb(CalculatorState& state) {
-  state.equation.clear();
-  state.cursor = 0;
-  state.lcd.clear();
-  state.lcd.update();
-}
 LP clear(new Function(clear_cb));
-
-void backspace_cb(CalculatorState& state) {
-  if (state.equation.size() == 1) {
-    clear_cb(state);
-    return;
-  }
-  state.equation.erase(state.equation.begin() + --state.cursor);
-  state.lcd.setCursor(0, 0);
-  int lcd_cursor = 0;
-  int count = 0;
-  state.lcd.clear();
-  for (auto& e : state.equation) state.lcd.put(e->getValue());
-
-  state.lcd.setCursor(0, cursorIndexToLcdIndex(state));
-  state.lcd.update();
-}
 LP backspace(new Function(backspace_cb));
+LP convertDouble(new Function(convertDouble_cb));
+LP layer2(new Function(layer2_cb));
 
 // Operators
 // Binary ops
@@ -172,12 +76,18 @@ LP op_sub(new BinaryOperator("-", BinaryOperator::Type::SUBTRACTION));
 LP op_mul(new BinaryOperator("*", BinaryOperator::Type::MULTIPLICATION));
 LP op_mod(new BinaryOperator("%", BinaryOperator::Type::MODULUS));
 LP op_exp(new BinaryOperator("^", BinaryOperator::Type::EXPONENT));
+LP op_n_sqrt(new BinaryOperator("^\xE8", BinaryOperator::Type::N_TH_ROOT));
 
 // Unary ops
 LP op_minus(new UnaryOperator("-", UnaryOperator::Type::MINUS));
 LP op_sin(new UnaryOperator("sin", UnaryOperator::Type::SIN));
 LP op_cos(new UnaryOperator("cos", UnaryOperator::Type::COS));
 LP op_tan(new UnaryOperator("tan", UnaryOperator::Type::TAN));
+LP op_asin(new UnaryOperator("asin", UnaryOperator::Type::ARCSIN));
+LP op_acos(new UnaryOperator("acos", UnaryOperator::Type::ARCCOS));
+LP op_atan(new UnaryOperator("atan", UnaryOperator::Type::ARCTAN));
+LP op_ln(new UnaryOperator("ln", UnaryOperator::Type::LN));
+LP op_sqrt(new UnaryOperator("\xE8", UnaryOperator::Type::SQUARE_ROOT));
 
 // Numbers
 #define LITP(a) (LP(new LiteralsPiece(a)))
@@ -185,33 +95,45 @@ LP op_tan(new UnaryOperator("tan", UnaryOperator::Type::TAN));
 // Literals
 LP l_pi(new Literals(Literals::Type::PI));
 LP l_e(new Literals(Literals::Type::E));
+LP ANS(new Literals(Literals::Type::ANS));
 
 // Brackets
 LP b_open(new Bracket(Bracket::Type::OPEN));
 LP b_clos(new Bracket(Bracket::Type::CLOSED));
 
 LP button_mapping[MATRIX_COL_SIZE][MATRIX_ROW_SIZE]{
-    {noop, noop, noop, backspace, reflash},
-    {noop, noop, noop, noop, noop},
-    {noop, noop, noop, noop, noop},
+    {noop, moveUp, noop, layer2, reflash},
+    {noop, moveLeft, moveRight, noop, noop},
+    {convertDouble, moveDown, noop, noop, noop},
     {l_pi, l_e, op_sin, op_cos, op_tan},
     {op_exp, op_mod, b_open, b_clos, op_div},
-    {noop, LITP('7'), LITP('8'), LITP('9'), op_sub},
-    {noop, LITP('4'), LITP('5'), LITP('6'), op_mul},
-    {noop, LITP('1'), LITP('2'), LITP('3'), op_add},
+    {op_sqrt, LITP('7'), LITP('8'), LITP('9'), op_mul},
+    {noop, LITP('4'), LITP('5'), LITP('6'), op_sub},
+    {backspace, LITP('1'), LITP('2'), LITP('3'), op_add},
     {clear, LITP('0'), LITP('.'), op_minus, calc}};
+
+// null means fallback to button_mapping
+LP button_mapping2[MATRIX_COL_SIZE][MATRIX_ROW_SIZE]{
+    {nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, op_ln, op_asin, op_acos, op_atan},
+    {nullptr, nullptr, nullptr, nullptr, nullptr},
+    {op_n_sqrt, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, ANS, nullptr}};
 
 // smile
 uint8_t smile[] = {0x00, 0x00, 0x0A, 0x00, 0x11, 0x0E, 0x00, 0x00};
 
 int main() {
-  stdio_init_all();
-
   ButtonMatrix<MATRIX_ROW_SIZE, MATRIX_COL_SIZE> buttons = {
       {15, 11, 14, 13, 12}, {27, 26, 22, 21, 20, 19, 18, 17, 16}};
 
   CalculatorState state;
 
+  sleep_ms(200);
   state.lcd.createChar(1, smile);
   state.lcd.clear();
   state.lcd.setCursor(0, 3);
@@ -226,8 +148,8 @@ int main() {
   state.lcd.clear();
   state.lcd.update();
 
-  int cursor = 0;
-  // state.equation.clear();
+  state.cursor = 0;
+  state.equation.clear();
   while (1) {
     sleep_ms(10);
     auto but = buttons.getPressed(true);
@@ -241,9 +163,20 @@ int main() {
       if (state.clear) {
         state.lcd.clear();
         state.clear = false;
+        state.cleared = true;
       }
 
-      const auto& mapping = button_mapping[but->second][but->first];
+      auto& mapping = button_mapping[but->second][but->first];
+
+      // if second layer is active change layer
+      if (state.layer2 == true) {
+        const auto& mapping2 = button_mapping2[but->second][but->first];
+        if (mapping2) {
+          mapping = button_mapping2[but->second][but->first];
+        }
+        state.layer2 = false;
+      }
+
       switch (mapping->getClassification()) {
         case Letter::Classification::FUNCTION:
           reinterpret_cast<Function&>(*mapping).invoke(state);
@@ -254,8 +187,8 @@ int main() {
             state.equation.emplace_back(mapping);
             state.equation.emplace_back(b_open);
 
-            state.lcd.put(mapping->getValue(), true);
-            state.lcd.put(b_open->getValue(), true);
+            state.lcd.put(mapping->getSymbol(), true);
+            state.lcd.put(b_open->getSymbol(), true);
 
             state.lcd.update();
             state.cursor += 2;
@@ -263,11 +196,24 @@ int main() {
           }
         }  // fall through
         default:
-          state.equation.emplace_back(mapping);
-          state.lcd.put(mapping->getValue(), true);
-          state.lcd.update();
-          state.cursor += 1;
+          if (state.cursor == state.equation.size()) {
+            state.equation.emplace_back(mapping);
+            state.lcd.put(mapping->getSymbol(), true);
+            state.cursor += 1;
+          } else {
+            if (state.insert_mode) {
+              state.equation.insert(state.equation.begin() + state.cursor,
+                                    mapping);
+            } else {
+              state.equation[state.cursor] = mapping;
+            }
+            state.cursor += 1;
+          }
+          redrawEquation(state);
+          break;
       }
+      // Set the clear flag to false
+      state.cleared = false;
     }
   }
   return 0;

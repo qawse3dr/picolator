@@ -67,18 +67,20 @@ class BinaryOperator : public Letter {
         return lhs * rhs;
         break;
       case Type::DIVISION:
-        if (rhs.getDouble() == 0) throw DomainError("/");
+        if (rhs.getValue() == 0) throw DomainError("/");
         return lhs / rhs;
       case Type::EXPONENT:
-        if (lhs.getDouble() == 0 && rhs.getDouble() == 0)
+        if (lhs.getValue() == 0 && rhs.getValue() == 0)
           throw DomainError("exp");
-        return pow(lhs.getDouble(), rhs.getDouble());
+        return pow(lhs.getValue(), rhs.getValue());
       case Type::N_TH_ROOT:
-        if (lhs.getDouble() == 0) throw DomainError("n_sqrt()");
+        if (lhs.getValue() == 0) throw DomainError("n_sqrt()");
         // This is meant to be backwards
-        return pow(rhs.getDouble(), 1 / lhs.getDouble());
+        return pow(rhs.getValue(), 1 / lhs.getValue());
       case Type::MODULUS:
         return lhs % rhs;
+      default:
+        throw NotImplementedError(std::string(__func__));
     }
   }
 

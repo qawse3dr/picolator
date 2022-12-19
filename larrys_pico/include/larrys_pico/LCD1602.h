@@ -74,26 +74,25 @@ class LCD1602 {
   /* updates the screen_ and displays changes to the lcd module*/
   void update();
 
-  void setCursor(int y, int x) {
-    cursor_x_ = x;
-    cursor_y_ = y;
-    while (screen_buffer_.size() - 1 < cursor_y_) {
-      screen_buffer_.emplace_back("");
-    }
-
-    if (screen_x_ > screen_buffer_[cursor_y_].length()) {
-      screen_buffer_[cursor_y_].append(
-          screen_buffer_[cursor_y_].length() - cursor_x_, ' ');
-    }
-  }
+  void setCursor(int y, int x) { moveCursor(y - cursor_y_, x - cursor_x_); }
 
   bool moveCursor(int dy, int dx, bool scroll = true) {
     if (cursor_x_ + dx < 0 || cursor_y_ + dy < 0) {
       return false;
     }
 
-    // valid move todo this check should be done by client not us
-    setCursor(cursor_y_ + dy, cursor_x_ + dx);
+    cursor_y_ += dy;
+    cursor_x_ += dx;
+
+    while (screen_buffer_.size() - 1 < cursor_y_) {
+      screen_buffer_.emplace_back("");
+    }
+
+    if (cursor_x_ > screen_buffer_[cursor_y_].length()) {
+      screen_buffer_[cursor_y_].append(
+          screen_buffer_[cursor_y_].length() - cursor_x_, ' ');
+    }
+
     if (scroll) {
       printf("cursor x %d screen x %d\n", cursor_x_, screen_x_);
       if (cursor_x_ < screen_x_) {

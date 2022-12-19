@@ -51,7 +51,7 @@ class ExprTree {
    *
    * @return float
    */
-  float getValue();
+  LiteralPtr getValue();
 
   // prints a pretty version of the tree
   void print();

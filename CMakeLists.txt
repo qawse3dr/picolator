@@ -50,6 +50,7 @@ if(NOT DEFINED PICOLATOR_TEST)
 
   add_executable(picolator
   larrys_calculator.cpp
+  callbacks.cpp
   )
   # pull in common dependencies
   target_link_libraries(picolator PRIVATE larryspico picolator_objlib pico_stdlib pico_multicore hardware_i2c)
@@ -58,7 +59,7 @@ if(NOT DEFINED PICOLATOR_TEST)
   # create map/bin/hex/uf2 file etc.
   pico_add_extra_outputs(picolator)
 
-  pico_enable_stdio_usb(picolator 1)
+  # pico_enable_stdio_usb(picolator 1)
 else()
   add_subdirectory(test)
 endif()
