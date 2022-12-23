@@ -12,9 +12,6 @@
 
 #include "math_util.h"
 
-#define LITERAL_GET_VALUE(func_ans, func_val) \
-  ((type_ == Literals::Type::ANS) ? getAnswer().func_ans : func_val)
-
 using picolator::math::Constant;
 using picolator::math::Literals;
 
@@ -43,7 +40,7 @@ Literals::Literals(int l)
       num_(l),
       type_(Type::LONG) {}
 Literals::Literals(char c)
-    : Letter(std::to_string(c), Letter::Classification::LITERAL, 0),
+    : Letter(std::string(1, c), Letter::Classification::LITERAL, 0),
       variable_(c),
       type_(Type::VARIABLE) {}
 
@@ -132,8 +129,6 @@ Literals Literals::operator=(const Literals& rhs) {
 
 double Literals::getValue() const {
   switch (getType()) {
-    case Type::VARIABLE:
-      return 0;  // TODO IMPL
     case Type::DOUBLE:
       return getDouble();
     case Type::LONG:
@@ -173,48 +168,76 @@ long Literals::getLong() const {
   if (getType() != Type::LONG) {
     throw TypeError(__func__, "int");
   }
-  return LITERAL_GET_VALUE(getLong(), std::get<long>(num_));
+  return std::get<long>(getLiteral().num_);
 }
 
 const Literals::Fraction& Literals::getFraction() const {
   if (getType() != Type::FRACTION) {
     throw TypeError(__func__, "Frac");
   }
-  return LITERAL_GET_VALUE(getFraction(), std::get<Fraction>(num_));
+  return std::get<Fraction>(getLiteral().num_);
 }
 
 Literals& Literals::getNumerator() const {
   if (getType() != Type::FRACTION) {
     throw TypeError(__func__, "Frac");
   }
-  return LITERAL_GET_VALUE(getNumerator(), *std::get<Fraction>(num_).numerator);
+  return *std::get<Fraction>(getLiteral().num_).numerator;
 }
 
 Literals& Literals::getDenominator() const {
   if (getType() != Type::FRACTION) {
     throw TypeError(__func__, "Frac");
   }
-  return LITERAL_GET_VALUE(getDenominator(),
-                           *std::get<Fraction>(num_).denominator);
+  return *std::get<Fraction>(getLiteral().num_).denominator;
 }
 
 double Literals::getDouble() const {
   if (getType() != Type::DOUBLE) {
     throw TypeError(__func__, "Frac");
   }
-  return LITERAL_GET_VALUE(getDouble(), std::get<double>(num_));
+  return std::get<double>(getLiteral().num_);
 }
 
 Constant& Literals::getConstant() const {
   if (getType() != Type::E && getType() != Type::PI) {
     throw TypeError(__func__, "Frac");
   }
-  return LITERAL_GET_VALUE(getConstant(), *constant_);
+  return *getLiteral().constant_;
 }
 
 Literals& Literals::getAnswer() {
   static Literals ans(0);
   return ans;
+}
+
+Literals& Literals::getVariable(uint8_t var) {
+  static Literals variables[6] = {0, 0, 0, 0, 0, 0};
+  if (var > 'F' || var < 'A') {
+    throw picolator::math::DomainError("Var doesn't exist");
+  }
+  return variables[static_cast<int>(var - 'A')];
+}
+
+Literals& Literals::getLiteral() {
+  switch (type_) {
+    case Type::ANS:
+      return getAnswer();
+    case Type::VARIABLE:
+      return getVariable(variable_);
+    default:
+      return *this;
+  }
+}
+const Literals& Literals::getLiteral() const {
+  switch (type_) {
+    case Type::ANS:
+      return getAnswer();
+    case Type::VARIABLE:
+      return getVariable(variable_);
+    default:
+      return *this;
+  }
 }
 
 Literals Literals::operator+(const Literals& rhs) const {
@@ -311,8 +334,6 @@ bool Literals::operator==(const Literals& rhs) const {
 
 Literals Literals::operator-() const {
   switch (getType()) {
-    case Type::VARIABLE:
-      return 0;  // TODO IMPL
     case Type::DOUBLE:
       return Literals(-getDouble());
     case Type::LONG:
@@ -322,8 +343,6 @@ Literals Literals::operator-() const {
     case Type::PI:
     case Type::E:
       return Literals(getType(), -(getConstant().x_), getConstant().pow_);
-    case Type::ANS:
-      return -getAnswer();
     default:
       // TODO throw err
       throw std::exception();

@@ -18,6 +18,8 @@ int cursorIndexToLcdIndex(const CalculatorState& state);
 void redrawEquation(CalculatorState& state);
 void copyExprVec(const picolator::math::ExprTree::ExprVec& src,
                  picolator::math::ExprTree::ExprVec& dst);
+void insertEquation(CalculatorState& state,
+                    const picolator::math::ExprTree::LetterPtr& val);
 
 // Callbacks
 void noOp(CalculatorState&);
@@ -31,3 +33,6 @@ void clear_cb(CalculatorState& state);
 void backspace_cb(CalculatorState& state);
 void convertDouble_cb(CalculatorState& state);
 void layer2_cb(CalculatorState& state);
+
+void saveVar_cb(CalculatorState& state);
+void getVar_cb(CalculatorState& state);

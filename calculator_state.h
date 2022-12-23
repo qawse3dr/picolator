@@ -10,10 +10,15 @@
  */
 #pragma once
 
+#include <larrys_pico/LCD1602.h>
+#include <larrys_pico/button_matrix.h>
+
 #include <vector>
 
-#include "larrys_pico/LCD1602.h"
 #include "math/expr_tree.h"
+
+#define MATRIX_ROW_SIZE 5
+#define MATRIX_COL_SIZE 9
 
 struct CalculatorState {
   // Holds a pointer to the current equation (should be index 0)
@@ -38,4 +43,7 @@ struct CalculatorState {
 
   // Hardware functions might make use of
   LCD1602 lcd;
+
+  ButtonMatrix<MATRIX_ROW_SIZE, MATRIX_COL_SIZE> buttons = {
+      {15, 11, 14, 13, 12}, {27, 26, 22, 21, 20, 19, 18, 17, 16}};
 };

@@ -11,7 +11,6 @@
 
 #include <larrys_pico/LCD1602.h>
 #include <larrys_pico/button.h>
-#include <larrys_pico/button_matrix.h>
 
 #include <cmath>
 #include <limits>
@@ -39,9 +38,6 @@
 #include "pico/stdio.h"
 #include "pico/stdlib.h"
 
-#define MATRIX_ROW_SIZE 5
-#define MATRIX_COL_SIZE 9
-
 using picolator::math::BinaryOperator;
 using picolator::math::Bracket;
 using picolator::math::ExprTree;
@@ -66,6 +62,9 @@ LP calc(new Function(calculate_cb));
 LP clear(new Function(clear_cb));
 LP backspace(new Function(backspace_cb));
 LP convertDouble(new Function(convertDouble_cb));
+LP saveVar(new Function(saveVar_cb));
+LP getVar(new Function(getVar_cb));
+
 LP layer2(new Function(layer2_cb));
 
 // Operators
@@ -108,7 +107,7 @@ LP button_mapping[MATRIX_COL_SIZE][MATRIX_ROW_SIZE]{
     {l_pi, l_e, op_sin, op_cos, op_tan},
     {op_exp, op_mod, b_open, b_clos, op_div},
     {op_sqrt, LITP('7'), LITP('8'), LITP('9'), op_mul},
-    {noop, LITP('4'), LITP('5'), LITP('6'), op_sub},
+    {getVar, LITP('4'), LITP('5'), LITP('6'), op_sub},
     {backspace, LITP('1'), LITP('2'), LITP('3'), op_add},
     {clear, LITP('0'), LITP('.'), op_minus, calc}};
 
@@ -120,7 +119,7 @@ LP button_mapping2[MATRIX_COL_SIZE][MATRIX_ROW_SIZE]{
     {nullptr, op_ln, op_asin, op_acos, op_atan},
     {nullptr, nullptr, nullptr, nullptr, nullptr},
     {op_n_sqrt, nullptr, nullptr, nullptr, nullptr},
-    {nullptr, nullptr, nullptr, nullptr, nullptr},
+    {saveVar, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, ANS, nullptr}};
 
@@ -128,9 +127,6 @@ LP button_mapping2[MATRIX_COL_SIZE][MATRIX_ROW_SIZE]{
 uint8_t smile[] = {0x00, 0x00, 0x0A, 0x00, 0x11, 0x0E, 0x00, 0x00};
 
 int main() {
-  ButtonMatrix<MATRIX_ROW_SIZE, MATRIX_COL_SIZE> buttons = {
-      {15, 11, 14, 13, 12}, {27, 26, 22, 21, 20, 19, 18, 17, 16}};
-
   CalculatorState state;
 
   sleep_ms(200);
@@ -152,7 +148,7 @@ int main() {
   state.equation.clear();
   while (1) {
     sleep_ms(10);
-    auto but = buttons.getPressed(true);
+    auto but = state.buttons.getPressed(true);
 
     if (but) {
       // state.lcd.clear();
@@ -166,7 +162,8 @@ int main() {
         state.cleared = true;
       }
 
-      auto& mapping = button_mapping[but->second][but->first];
+      // dont use ref or
+      auto mapping = button_mapping[but->second][but->first];
 
       // if second layer is active change layer
       if (state.layer2 == true) {
@@ -196,20 +193,7 @@ int main() {
           }
         }  // fall through
         default:
-          if (state.cursor == state.equation.size()) {
-            state.equation.emplace_back(mapping);
-            state.lcd.put(mapping->getSymbol(), true);
-            state.cursor += 1;
-          } else {
-            if (state.insert_mode) {
-              state.equation.insert(state.equation.begin() + state.cursor,
-                                    mapping);
-            } else {
-              state.equation[state.cursor] = mapping;
-            }
-            state.cursor += 1;
-          }
-          redrawEquation(state);
+          insertEquation(state, mapping);
           break;
       }
       // Set the clear flag to false

@@ -62,6 +62,23 @@ void copyExprVec(const ExprTree::ExprVec& src, ExprTree::ExprVec& dst) {
   }
 }
 
+void insertEquation(CalculatorState& state,
+                    const ExprTree::LetterPtr& mapping) {
+  if (state.cursor == state.equation.size()) {
+    state.equation.emplace_back(mapping);
+    state.lcd.put(mapping->getSymbol(), true);
+    state.cursor += 1;
+  } else {
+    if (state.insert_mode) {
+      state.equation.insert(state.equation.begin() + state.cursor, mapping);
+    } else {
+      state.equation[state.cursor] = mapping;
+    }
+    state.cursor += 1;
+  }
+  redrawEquation(state);
+}
+
 void reflash_cb(CalculatorState& state) {
   state.lcd.clear();
   state.lcd.setCursor(0, 0);
@@ -197,14 +214,70 @@ void backspace_cb(CalculatorState& state) {
 }
 
 void convertDouble_cb(CalculatorState& state) {
-  if (!state.ans) return;
+  if (!state.ans) state.ans = 0;
   state.lcd.clear();
   state.lcd.setCursor(0, 0);
   state.lcd.put("ANS \x7E DOUBLE");
   state.lcd.setCursor(1, 0);
   state.lcd.put("\x7E" + std::to_string(state.ans->getValue()));
   state.lcd.update();
-  state.lcd.setCursor(0, cursorIndexToLcdIndex(state));
+}
+
+static char selectVar(CalculatorState& state) {
+  int cursor = 0;
+  state.lcd.clear();
+  state.lcd.setCursor(0, 0);
+  state.lcd.put("A B C D E F");
+  state.lcd.setCursor(1, 0);
+  state.lcd.put("\x7E" + Literals::getVariable('A').getSymbol());
+  state.lcd.setCursor(0, 0);
+  state.lcd.update();
+
+  while (1) {
+    sleep_ms(10);
+    auto but = state.buttons.getPressed(true);
+    if (!but) continue;
+    if (but->second == 8 && but->first == 4) break;
+    if (but->second == 1 && but->first == 2 && cursor < 6) {
+      cursor++;
+      state.lcd.setCursor(1, 0);
+      state.lcd.clear(1);
+
+      state.lcd.put("\x7E" + Literals::getVariable('A' + cursor).getSymbol());
+      state.lcd.setCursor(0, cursor * 2);
+
+      state.lcd.update();
+    }
+    if (but->second == 1 && but->first == 1 && cursor > 0) {
+      cursor--;
+      state.lcd.setCursor(1, 0);
+      state.lcd.clear(1);
+      state.lcd.put("\x7E" + Literals::getVariable('A' + cursor).getSymbol());
+      state.lcd.setCursor(0, cursor * 2);
+
+      state.lcd.update();
+    }
+  }
+  return 'A' + cursor;
+}
+
+void saveVar_cb(CalculatorState& state) {
+  if (!state.ans) state.ans = 0;
+  char var = selectVar(state);
+  Literals::getVariable(var) = *state.ans;
+  state.lcd.clear();
+  state.lcd.setCursor(0, 0);
+  state.lcd.put("ANS \x7E " + std::string(1, var));
+  state.lcd.setCursor(1, 0);
+  state.lcd.put("\x7E" + Literals::getVariable(var).toString());
+  state.lcd.setCursor(0, 0);
+  state.lcd.update();
+}
+void getVar_cb(CalculatorState& state) {
+  if (!state.ans) state.ans = 0;
+  char var = selectVar(state);
+  insertEquation(state, LP(new Literals(var)));
+  redrawEquation(state);
 }
 
 void noOp(CalculatorState&){};

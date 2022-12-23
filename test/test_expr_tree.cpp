@@ -59,7 +59,7 @@ TEST(ExprTree, MinimizeLong) {
 
   ASSERT_NE(nullptr, tree.getRoot());
   ASSERT_NE(nullptr, tree.getRoot()->current_value);
-  ASSERT_EQ(10, tree.getRoot()->current_value->getLong());
+  ASSERT_EQ(10, tree.getRoot()->current_value->getValue());
 }
 
 TEST(ExprTree, MinimizeDouble) {
@@ -73,7 +73,7 @@ TEST(ExprTree, MinimizeDouble) {
 
   ASSERT_NE(nullptr, tree.getRoot());
   ASSERT_NE(nullptr, tree.getRoot()->current_value);
-  ASSERT_EQ(10.5, tree.getRoot()->current_value->getDouble());
+  ASSERT_EQ(10.5, tree.getRoot()->current_value->getValue());
 }
 
 TEST(ExprTree, SingleInt) {
@@ -83,7 +83,7 @@ TEST(ExprTree, SingleInt) {
   picolator::math::ExprTreeTester tree(letters);
   ASSERT_TRUE(tree.getRoot());
   ASSERT_EQ(1, tree.countLeafs(tree.getRoot()));
-  ASSERT_EQ(tree.isi.getValue(), 10.0f);
+  ASSERT_EQ(tree.isi.getValue()->getValue(), 10.0f);
 }
 
 TEST(ExprTree, Minus) {
@@ -96,9 +96,7 @@ TEST(ExprTree, Minus) {
   picolator::math::ExprTreeTester tree(letters);
   ASSERT_NE(nullptr, tree.getRoot());
   ASSERT_EQ(1, tree.countLeafs(tree.getRoot()));
-  ASSERT_EQ(tree.isi.getValue(), -10.0f);
-
-  // ASSERT_EQ(10.5, tree.getRoot()->current_value->getDouble());
+  ASSERT_EQ(tree.isi.getValue()->getValue(), -10.0f);
 }
 
 TEST(ExprTree, Addition) {
@@ -113,7 +111,7 @@ TEST(ExprTree, Addition) {
   picolator::math::ExprTreeTester tree(letters);
   ASSERT_TRUE(tree.getRoot());
   ASSERT_EQ(2, tree.countLeafs(tree.getRoot()));
-  ASSERT_EQ(tree.isi.getValue(), 25.0f);
+  ASSERT_EQ(tree.isi.getValue()->getValue(), 25.0f);
 }
 
 TEST(ExprTree, Addition_With_Minus) {
@@ -130,7 +128,7 @@ TEST(ExprTree, Addition_With_Minus) {
   picolator::math::ExprTreeTester tree(letters);
   ASSERT_TRUE(tree.getRoot());
   ASSERT_EQ(2, tree.countLeafs(tree.getRoot()));
-  ASSERT_EQ(tree.isi.getValue(), -5.0f);
+  ASSERT_EQ(tree.isi.getValue()->getValue(), -5.0f);
 }
 
 TEST(ExprTree, Addition_and_Mult) {
@@ -157,9 +155,9 @@ TEST(ExprTree, Addition_and_Mult) {
       BinaryOperator::Type::MULTIPLICATION,
       reinterpret_cast<BinaryOperator&>(*(tree.getRoot()->children[1]->value))
           .getType());
-  ASSERT_EQ(10, tree.getRoot()->children[0]->current_value->getLong());
+  ASSERT_EQ(10, tree.getRoot()->children[0]->current_value->getValue());
 
-  ASSERT_EQ(tree.isi.getValue(), 154.0f);
+  ASSERT_EQ(tree.isi.getValue()->getValue(), 154.0f);
 }
 
 TEST(ExprTree, Addition_and_Mult_Brackets) {
@@ -184,14 +182,14 @@ TEST(ExprTree, Addition_and_Mult_Brackets) {
   ASSERT_EQ(2, tree.getRoot()->children.size());
   ASSERT_EQ(2,
             reinterpret_cast<Literals&>(*(tree.getRoot()->children[1]->value))
-                .getLong());
+                .getValue());
   ASSERT_EQ(
       BinaryOperator::Type::ADDITION,
       reinterpret_cast<BinaryOperator&>(*(tree.getRoot()->children[0]->value))
           .getType());
   ASSERT_EQ(3, tree.countLeafs(tree.getRoot()));
 
-  ASSERT_EQ(tree.isi.getValue(), 44.0f);
+  ASSERT_EQ(tree.isi.getValue()->getValue(), 44.0f);
 }
 
 TEST(ExprTree, Bracket_MULT) {
@@ -220,13 +218,13 @@ TEST(ExprTree, Bracket_MULT) {
   ASSERT_EQ(2, tree.getRoot()->children.size());
   ASSERT_EQ(0.5,
             reinterpret_cast<Literals&>(*(tree.getRoot()->children[0]->value))
-                .getDouble());
+                .getValue());
   ASSERT_EQ(
       BinaryOperator::Type::ADDITION,
       reinterpret_cast<BinaryOperator&>(*(tree.getRoot()->children[0]->value))
           .getType());
 
-  ASSERT_EQ(tree.isi.getValue(), 22.0f);
+  ASSERT_EQ(tree.isi.getValue()->getValue(), 22.0f);
 }
 
 TEST(ExprTree, sin_pi) {
@@ -239,7 +237,7 @@ TEST(ExprTree, sin_pi) {
   letters.emplace_back(ExprTree::LetterPtr(new Bracket(Bracket::Type::CLOSED)));
   picolator::math::ExprTreeTester tree(letters);
 
-  ASSERT_EQ(tree.isi.getValue(), 0);
+  ASSERT_EQ(tree.isi.getValue()->getValue(), 0);
 }
 
 TEST(ExprTree, pi) {
@@ -248,8 +246,8 @@ TEST(ExprTree, pi) {
   picolator::math::ExprTreeTester tree(letters);
 
   // should be < e but I am lazy
-  ASSERT_TRUE(std::abs(tree.isi.getValue() - picolator::math::PI::value) <
-              0.001);
+  ASSERT_TRUE(std::abs(tree.isi.getValue()->getValue() -
+                       picolator::math::PI::value) < 0.001);
 }
 
 TEST(ExprTree, cos_pi) {
@@ -263,5 +261,5 @@ TEST(ExprTree, cos_pi) {
   letters.emplace_back(ExprTree::LetterPtr(new Bracket(Bracket::Type::CLOSED)));
   picolator::math::ExprTreeTester tree(letters);
 
-  ASSERT_EQ(tree.isi.getValue(), -1);
+  ASSERT_EQ(tree.isi.getValue()->getValue(), -1);
 }

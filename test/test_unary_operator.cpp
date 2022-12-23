@@ -22,7 +22,7 @@ using picolator::math::UnaryOperator;
 TEST(UnaryOperatorTest, Constructor) {
   UnaryOperator op("sin", UnaryOperator::Type::SIN);
 
-  ASSERT_EQ("sin", op.getValue());
+  ASSERT_EQ("sin", op.getSymbol());
   ASSERT_EQ(Letter::Classification::UNARY, op.getClassification());
   ASSERT_EQ(UnaryOperator::Type::SIN, op.getOp());
 }

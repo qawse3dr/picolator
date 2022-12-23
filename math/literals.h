@@ -66,6 +66,18 @@ class Literals : public Letter {
   Constant& getConstant() const;
   const Fraction& getFraction() const;
 
+  /**
+   * @brief Checks if this literals is a wrapper for
+   *        a real literal and returns the correct value
+   *        (ie Variable and Answer are just placeholder
+   *         and dont contain the actual value
+   *        )
+   *
+   * @return Literals& Ref to actual literal
+   */
+  const Literals& getLiteral() const;
+  Literals& getLiteral();
+
  public:
   /**
    * @brief Creates double Literal
@@ -111,12 +123,13 @@ class Literals : public Letter {
 
   // Returns a double value of the Literals
   double getValue() const;
-  inline const Type& getType() const {
-    return (type_ == Type::ANS) ? getAnswer().getType() : type_;
-  }
+  inline const Type& getType() const { return getLiteral().type_; }
 
   // SingletonAnswer
   static Literals& getAnswer();
+
+  // Singleton variables
+  static Literals& getVariable(uint8_t var);
 
   std::string toString() const;
 
