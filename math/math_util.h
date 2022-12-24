@@ -39,7 +39,7 @@ class SyntaxError : public std::exception {
  public:
   const char* what() const throw() { return msg_.c_str(); }
   SyntaxError(const std::string& msg, int idx)
-      : msg_("Syntax error: " + msg), idx_(idx) {}
+      : msg_("Syntax E " + msg), idx_(idx) {}
   const int idx_;
 };
 
@@ -50,7 +50,7 @@ class TypeError : public std::exception {
  public:
   const char* what() const throw() { return msg_.c_str(); }
   TypeError(const std::string& ftn, const std::string& type)
-      : msg_("Type error: " + ftn + " needs " + type) {}
+      : msg_("Type E " + ftn + "-" + type) {}
 };
 
 class NotImplementedError : public std::exception {

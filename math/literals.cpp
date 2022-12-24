@@ -247,6 +247,12 @@ Literals Literals::reduce() const {
     const auto& numerator = getNumerator();
     const auto& denominator = getDenominator();
 
+    // Check to make sure that the numerator and denominators aren't doubles
+    if (numerator.getType() == Type::DOUBLE ||
+        denominator.getType() == Type::DOUBLE) {
+      return numerator.getValue() / denominator.getValue();
+    }
+
     int num_value = 0;
     int den_value = 0;
 
