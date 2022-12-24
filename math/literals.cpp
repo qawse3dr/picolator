@@ -10,6 +10,8 @@
  */
 #include "literals.h"
 
+#include <limits>
+
 #include "math_util.h"
 
 using picolator::math::Constant;
@@ -240,6 +242,96 @@ const Literals& Literals::getLiteral() const {
   }
 }
 
+Literals Literals::reduce() const {
+  if (getType() == Type::FRACTION) {
+    const auto& numerator = getNumerator();
+    const auto& denominator = getDenominator();
+
+    int num_value = 0;
+    int den_value = 0;
+
+    if (numerator == denominator) {
+      return 1;
+    }
+    if (numerator.getValue() == 0) {
+      return 0;
+    }
+    // get Numerator value
+    if (numerator.getType() == Type::LONG) {
+      num_value = numerator.getLong();
+    } else if (numerator.isConstant()) {
+      const auto& con = numerator.getConstant();
+      num_value = con.x_.getLong();
+    } else {
+      throw TypeError(__func__, "Long/Const");
+    }
+
+    // get denominator value
+    if (denominator.getType() == Type::LONG) {
+      den_value = denominator.getLong();
+    } else if (denominator.isConstant()) {
+      const auto& con = denominator.getConstant();
+      den_value = con.x_.getLong();
+    } else {
+      throw TypeError(__func__, "Long/Const");
+    }
+
+    // Uses euclidean gcd to reduce
+    int tmp_a;
+    while (den_value != 0) {
+      tmp_a = num_value;
+      num_value = den_value;
+      den_value = tmp_a % den_value;
+    }
+
+    Literals new_num(numerator), new_den(denominator);
+    if (numerator.isConstant()) {
+      new_num = Literals(numerator.getType(),
+                         numerator.getConstant().x_.getLong() / num_value,
+                         numerator.getConstant().pow_);
+    } else {
+      new_num = numerator.getLong() / num_value;
+    }
+
+    if (denominator.isConstant()) {
+      new_den = Literals(new_den.getType(),
+                         new_den.getConstant().x_.getLong() / num_value,
+                         new_den.getConstant().pow_);
+    } else {
+      new_den = new_den.getLong() / num_value;
+    }
+
+    // divide out constants
+    if (numerator.isConstant() &&
+        numerator.getType() == denominator.getType()) {
+      if (numerator.getConstant().pow_ == denominator.getConstant().pow_) {
+        // they cancel
+        new_num = numerator.getConstant().x_;
+        new_den = new_den.getConstant().x_;
+      } else if (numerator.getConstant().pow_.getLong() >
+                 denominator.getConstant().pow_.getLong()) {
+        // bottom cancels
+        new_num = Literals(new_num.getType(), new_num.getConstant().x_,
+                           new_num.getConstant().pow_.getLong() -
+                               new_den.getConstant().pow_.getLong());
+        new_den = new_den.getConstant().x_;
+      } else {
+        // top cancels
+        new_num = new_num.getConstant().x_;
+        new_den = Literals(new_den.getType(), new_den.getConstant().x_,
+                           new_den.getConstant().pow_.getLong() -
+                               new_num.getConstant().pow_.getLong());
+      }
+    }
+
+    if (new_den == Literals(1)) return new_num;
+    return Literals(new_num, new_den);
+
+  } else {
+    return *this;
+  }
+}
+
 Literals Literals::operator+(const Literals& rhs) const {
   if (rhs.getType() == getType()) {
     switch (getType()) {
@@ -286,35 +378,46 @@ Literals Literals::operator*(const Literals& rhs) const {
         const Fraction& left = std::get<Fraction>(num_);
         const Fraction& right = std::get<Fraction>(rhs.num_);
 
-        return Literals(*left.numerator + *right.numerator,
-                        *left.denominator + *right.denominator);
+        return Literals(*left.numerator * *right.numerator,
+                        *left.denominator * *right.denominator);
       }
       case Type::PI:
-        return Literals(Type::PI, rhs.constant_->x_ * constant_->x_,
-                        rhs.constant_->pow_ + constant_->pow_);
       case Type::E:
-        return Literals(Type::E, rhs.constant_->x_ * constant_->x_,
+        return Literals(getType(), rhs.constant_->x_ * constant_->x_,
                         rhs.constant_->pow_ + constant_->pow_);
     }
   } else if (rhs.getType() == Type::FRACTION &&
-             (getType() == Type::LONG || getType() == Type::PI)) {
+             (getType() == Type::LONG || isConstant())) {
     const Fraction& frac = rhs.getFraction();
     return Literals(*this * getNumerator(), getDenominator());
   } else if (getType() == Type::FRACTION &&
-             (rhs.getType() == Type::LONG || rhs.getType() == Type::PI)) {
+             (rhs.getType() == Type::LONG || rhs.isConstant())) {
     const Fraction& frac = std::get<Fraction>(num_);
     return Literals(rhs * getNumerator(), getDenominator());
+  } else if (getType() == Type::LONG && (rhs.isConstant())) {
+    return Literals(rhs.getType(), rhs.getConstant().x_ * *this,
+                    rhs.getConstant().pow_);
+  } else if (isConstant() && (rhs.getType() == Type::LONG)) {
+    return Literals(getType(), getConstant().x_ * rhs, getConstant().pow_);
   }
   return Literals(rhs.getValue() * getValue());
 }
 
-Literals Literals::operator/(const Literals& rhs) const {
+Literals Literals::operator/(
+    const Literals& rhs) const {  // TODO clean up this function
+  if (rhs.getValue() < std::numeric_limits<double>::epsilon()) {
+    throw picolator::math::DivideByZero();
+  }
   // return fraction
   if (rhs.getType() == getType() && getType() == Type::LONG) {
     if (*this % rhs == 0) {
       return getLong() / rhs.getLong();
     }
-    return Literals(*this, rhs);
+    return Literals(*this, rhs).reduce();
+  } else if (getType() == Type::LONG && rhs.isConstant() ||
+             isConstant() && rhs.getType() == Type::LONG ||
+             isConstant() && rhs.isConstant()) {
+    return Literals(*this, rhs).reduce();
   }
   return getValue() / rhs.getValue();
 }
@@ -345,6 +448,6 @@ Literals Literals::operator-() const {
       return Literals(getType(), -(getConstant().x_), getConstant().pow_);
     default:
       // TODO throw err
-      throw std::exception();
+      throw NotImplementedError(__func__);
   }
 }

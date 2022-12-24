@@ -65,6 +65,9 @@ class Literals : public Letter {
   Literals& getDenominator() const;
   Constant& getConstant() const;
   const Fraction& getFraction() const;
+  inline bool isConstant() const {
+    return (getType() == Type::E || getType() == Type::PI);
+  }
 
   /**
    * @brief Checks if this literals is a wrapper for
@@ -124,6 +127,8 @@ class Literals : public Letter {
   // Returns a double value of the Literals
   double getValue() const;
   inline const Type& getType() const { return getLiteral().type_; }
+  // finds the reduction of the current literal and returns it.
+  Literals reduce() const;
 
   // SingletonAnswer
   static Literals& getAnswer();

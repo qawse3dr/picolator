@@ -27,6 +27,11 @@ class DomainError : public std::exception {
   DomainError(const std::string& ftn_name) : msg_(ftn_name + " Domain error") {}
 };
 
+class DivideByZero : public std::exception {
+ public:
+  const char* what() const throw() { return "/ By 0"; }
+};
+
 class SyntaxError : public std::exception {
  private:
   std::string msg_;

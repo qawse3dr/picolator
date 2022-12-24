@@ -99,7 +99,7 @@ ExprTree::LiteralPtr ExprTree::getValue() {
         break;
     }
   }
-  return LiteralPtr(new Literals(LETTER_PTR_GET_VALUE(root_)));
+  return LiteralPtr(new Literals(LETTER_PTR_GET_VALUE(root_).reduce()));
 }
 
 void ExprTree::print() {
