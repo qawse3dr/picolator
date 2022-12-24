@@ -1,2 +1,2 @@
-BUGS
-- Fraction divided by fraction ans IE 7/ANS click solve twice
+FEATURE
+- return special angles for arc functions

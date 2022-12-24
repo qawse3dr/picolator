@@ -59,7 +59,7 @@ class NotImplementedError : public std::exception {
 
  public:
   const char* what() const throw() { return msg_.c_str(); }
-  NotImplementedError(const std::string& func) : msg_("NOT IMPL: " + func) {}
+  NotImplementedError(const std::string& func) : msg_("NIMP " + func) {}
 };
 
 Literals pcos(const Literals& radian);

@@ -69,18 +69,6 @@ class Literals : public Letter {
     return (getType() == Type::E || getType() == Type::PI);
   }
 
-  /**
-   * @brief Checks if this literals is a wrapper for
-   *        a real literal and returns the correct value
-   *        (ie Variable and Answer are just placeholder
-   *         and dont contain the actual value
-   *        )
-   *
-   * @return Literals& Ref to actual literal
-   */
-  const Literals& getLiteral() const;
-  Literals& getLiteral();
-
  public:
   /**
    * @brief Creates double Literal
@@ -129,6 +117,18 @@ class Literals : public Letter {
   inline const Type& getType() const { return getLiteral().type_; }
   // finds the reduction of the current literal and returns it.
   Literals reduce() const;
+
+  /**
+   * @brief Checks if this literals is a wrapper for
+   *        a real literal and returns the correct value
+   *        (ie Variable and Answer are just placeholder
+   *         and dont contain the actual value
+   *        )
+   *
+   * @return Literals& Ref to actual literal
+   */
+  const Literals& getLiteral() const;
+  Literals& getLiteral();
 
   // SingletonAnswer
   static Literals& getAnswer();

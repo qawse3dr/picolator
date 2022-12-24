@@ -131,7 +131,7 @@ void moveDown_cb(CalculatorState& state) {
 // the screen. or display error in case of error
 void calculate_cb(CalculatorState& state) {
   state.lcd.clear(1);
-  Literals::getAnswer() = *state.ans;
+  Literals::getAnswer() = state.ans->getLiteral();
   if (state.equation.empty()) {
     if (state.history.empty()) return;
     state.equation = state.history.back();
@@ -264,7 +264,7 @@ static char selectVar(CalculatorState& state) {
 void saveVar_cb(CalculatorState& state) {
   if (!state.ans) state.ans = 0;
   char var = selectVar(state);
-  Literals::getVariable(var) = *state.ans;
+  Literals::getVariable(var) = state.ans->getLiteral();
   state.lcd.clear();
   state.lcd.setCursor(0, 0);
   state.lcd.put("ANS \x7E " + std::string(1, var));
