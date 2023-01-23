@@ -143,6 +143,7 @@ class Literals : public Letter {
   Literals operator*(const Literals& rhs) const;
   Literals operator/(const Literals& rhs) const;
   Literals operator%(const Literals& rhs) const;
+  Literals operator^(const Literals& rhs) const;
   bool operator==(const Literals& rhs) const;
   Literals operator-() const;
 

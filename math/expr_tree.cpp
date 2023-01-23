@@ -22,6 +22,9 @@
 #include "math_util.h"
 #include "unary_operator.h"
 
+// todo remove
+#include <iostream>
+
 using picolator::math::BinaryOperator;
 using picolator::math::Bracket;
 using picolator::math::ExprTree;
@@ -49,53 +52,51 @@ ExprTree::LiteralPtr ExprTree::getValue() {
   node_stack.emplace(root_.get());
 
   while (!node_stack.empty()) {
+    // Save this at the start so if the stack is altered we
+    // still have a reference to the top
+
+    auto* top = node_stack.top();
     // This is a value pop off the stack nothing to do here
-    if (LETTER_PTR_HAS_VALUE(node_stack.top())) {
+    if (LETTER_PTR_HAS_VALUE(top)) {
       node_stack.pop();
       continue;
     }
-    switch (node_stack.top()->value->getClassification()) {
+    switch (top->value->getClassification()) {
       case Letter::Classification::LITERAL:
         // Set the current literals to current value
-        node_stack.top()->current_value = std::make_shared<Literals>(
-            *reinterpret_cast<Literals*>(node_stack.top()->value.get()));
+        top->current_value = std::make_shared<Literals>(
+            *reinterpret_cast<Literals*>(top->value.get()));
         break;
       case Letter::Classification::BINARY: {
-        // TODO create var of state
-
         // Check if we can calculate binary
         bool has_vals = true;
-        if (!LETTER_PTR_HAS_VALUE(node_stack.top()->children[0])) {
-          node_stack.push(node_stack.top()->children[0].get());
+        if (!LETTER_PTR_HAS_VALUE(top->children[0])) {
+          node_stack.push(top->children[0].get());
           has_vals = false;
         }
-
-        if (!LETTER_PTR_HAS_VALUE(node_stack.top()->children[1])) {
-          node_stack.push(node_stack.top()->children[1].get());
+        if (!LETTER_PTR_HAS_VALUE(top->children[1])) {
+          if (top->children[1] == nullptr) {
+          }
+          node_stack.push(top->children[1].get());
           has_vals = false;
         }
 
         if (has_vals) {
-          auto& binary_op =
-              reinterpret_cast<BinaryOperator&>(*(node_stack.top()->value));
-          node_stack.top()->current_value = std::make_shared<Literals>(
-              binary_op.solve(*node_stack.top()->children[0]->current_value,
-                              *node_stack.top()->children[1]->current_value));
+          auto& binary_op = reinterpret_cast<BinaryOperator&>(*(top->value));
+          top->current_value = std::make_shared<Literals>(
+              binary_op.solve(*top->children[0]->current_value,
+                              *top->children[1]->current_value));
         }
       } break;
       case Letter::Classification::UNARY:
-        // TODO create var of state
-
         // Check if we can calculate binary
-        if (!LETTER_PTR_HAS_VALUE(node_stack.top()->children[0])) {
-          node_stack.push(node_stack.top()->children[0].get());
+        if (!LETTER_PTR_HAS_VALUE(top->children[0])) {
+          node_stack.push(top->children[0].get());
         } else {
-          auto& unary_op =
-              reinterpret_cast<UnaryOperator&>(*(node_stack.top()->value));
-          node_stack.top()->current_value = std::make_shared<Literals>(
-              unary_op.solve(*node_stack.top()->children[0]->current_value));
+          auto& unary_op = reinterpret_cast<UnaryOperator&>(*(top->value));
+          top->current_value = std::make_shared<Literals>(
+              Literals(unary_op.solve(*top->children[0]->current_value)));
         }
-
         break;
     }
   }
@@ -160,7 +161,16 @@ ExprTree::ExprVec ExprTree::minimizeTreeInput(const ExprTree::ExprVec& expr) {
               new BinaryOperator("*", BinaryOperator::Type::MULTIPLICATION));
         }
       }
-      minimized_literal_input.push_back(l);
+      if (l->getClassification() == Letter::Classification::BINARY &&
+          reinterpret_cast<const BinaryOperator&>(*l).getType() ==
+              BinaryOperator::Type::SUBTRACTION) {
+        minimized_literal_input.emplace_back(
+            new BinaryOperator("+", BinaryOperator::Type::ADDITION));
+        minimized_literal_input.emplace_back(
+            new UnaryOperator("-", UnaryOperator::Type::MINUS));
+      } else {
+        minimized_literal_input.push_back(l);
+      }
     } else {
       const auto& lit = reinterpret_cast<const LiteralsPiece&>(*l);
       if (lit.value_ == '.') {

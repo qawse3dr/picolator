@@ -457,3 +457,18 @@ Literals Literals::operator-() const {
       throw NotImplementedError(__func__);
   }
 }
+
+Literals Literals::operator^(const Literals& rhs) const {
+  if (rhs.getType() == getType()) {
+    switch (getType()) {
+      case Type::LONG:
+        return Literals(pow(rhs.getLong(), getLong()));
+    }
+  }
+  if (isConstant()) {
+    if (rhs.getType() == Type::LONG) {
+      return Literals(getType(), getConstant().x_, getConstant().pow_ + rhs);
+    }
+  }
+  return Literals(pow(getValue(), rhs.getValue()));
+}

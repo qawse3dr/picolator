@@ -263,3 +263,53 @@ TEST(ExprTree, cos_pi) {
 
   ASSERT_EQ(tree.isi.getValue()->getValue(), -1);
 }
+
+TEST(ExprTree, variable) {
+  Literals::getVariable('A') = Literals(10);
+  ExprTree::ExprVec letters;
+  letters.emplace_back(
+      ExprTree::LetterPtr(new UnaryOperator("-", UnaryOperator::Type::MINUS)));
+  letters.emplace_back(ExprTree::LetterPtr(new Bracket(Bracket::Type::OPEN)));
+  letters.emplace_back(ExprTree::LetterPtr(new Literals('A')));
+  letters.emplace_back(ExprTree::LetterPtr(new Bracket(Bracket::Type::CLOSED)));
+  picolator::math::ExprTreeTester tree(letters);
+
+  ASSERT_EQ(tree.isi.getValue()->getValue(), -10);
+}
+
+TEST(ExprTree, addition_minus) {
+  ExprTree::ExprVec letters;
+  letters.emplace_back(ExprTree::LetterPtr(new Literals(1)));
+  letters.emplace_back(ExprTree::LetterPtr(
+      new BinaryOperator("+", BinaryOperator::Type::ADDITION)));
+  letters.emplace_back(
+      ExprTree::LetterPtr(new UnaryOperator("-", UnaryOperator::Type::MINUS)));
+  letters.emplace_back(ExprTree::LetterPtr(new Literals(2)));
+  letters.emplace_back(ExprTree::LetterPtr(
+      new BinaryOperator("+", BinaryOperator::Type::ADDITION)));
+  letters.emplace_back(
+      ExprTree::LetterPtr(new UnaryOperator("-", UnaryOperator::Type::MINUS)));
+  letters.emplace_back(ExprTree::LetterPtr(new Literals(3)));
+
+  std::cout << "start" << std::endl;
+
+  picolator::math::ExprTreeTester tree(letters);
+  std::cout << "here" << std::endl;
+
+  ASSERT_EQ(tree.isi.getValue()->getValue(), -4);
+}
+
+// TEST(ExprTree, minus) {
+//   ExprTree::ExprVec letters;
+//   letters.emplace_back(ExprTree::LetterPtr(new Literals(1)));
+//   letters.emplace_back(ExprTree::LetterPtr(
+//       new BinaryOperator("-", BinaryOperator::Type::SUBTRACTION)));
+//   letters.emplace_back(ExprTree::LetterPtr(new Literals(2)));
+//   letters.emplace_back(ExprTree::LetterPtr(
+//       new BinaryOperator("-", BinaryOperator::Type::SUBTRACTION)));
+//   letters.emplace_back(ExprTree::LetterPtr(new Literals(-3)));
+
+//   picolator::math::ExprTreeTester tree(letters);
+
+//   ASSERT_EQ(tree.isi.getValue()->getValue(), -4);
+// }
